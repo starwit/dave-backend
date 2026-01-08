@@ -325,7 +325,7 @@ class ZaehlungPersistierungsServiceTest {
         final UUID uuidZaehlung = UUID.randomUUID();
         final Zaehlung zaehlung = new Zaehlung();
         zaehlung.setId(uuidZaehlung.toString());
-        zaehlung.setPkwEinheit(new de.muenchen.dave.domain.elasticsearch.PkwEinheit());
+        zaehlung.setPkwEinheit(new PkwEinheit());
         final List<de.muenchen.dave.domain.elasticsearch.Fahrbeziehung> fahrbeziehungen = new ArrayList<>();
         final UUID uuidFahrbeziehung1 = UUID.randomUUID();
         de.muenchen.dave.domain.elasticsearch.Fahrbeziehung fahrbeziehung1 = new de.muenchen.dave.domain.elasticsearch.Fahrbeziehung();
@@ -372,8 +372,6 @@ class ZaehlungPersistierungsServiceTest {
         fahrbeziehungDto.setVon(1);
         fahrbeziehungDto.setNach(2);
         fahrbeziehungDto.setHochrechnungsfaktor(hochrechnungsfaktorDto);
-
-        Mockito.when(pkwEinheitMapper.elastic2Entity(zaehlung.getPkwEinheit())).thenReturn(pkwEinheit);
 
         Zeitintervall result = externalZaehlungPersistierungsService.setAdditionalDataToZeitintervall(
                 zeitintervall,

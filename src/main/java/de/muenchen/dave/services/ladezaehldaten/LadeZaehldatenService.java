@@ -1,11 +1,11 @@
 package de.muenchen.dave.services.ladezaehldaten;
 
+import de.muenchen.dave.domain.PkwEinheit;
 import de.muenchen.dave.domain.Zeitintervall;
 import de.muenchen.dave.domain.dtos.OptionsDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatenTableDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatumDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatumTageswertDTO;
-import de.muenchen.dave.domain.elasticsearch.PkwEinheit;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.domain.enums.FahrbewegungKreisverkehr;
 import de.muenchen.dave.domain.enums.TypeZeitintervall;

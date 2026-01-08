@@ -1,6 +1,7 @@
 package de.muenchen.dave.domain.elasticsearch;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import de.muenchen.dave.domain.PkwEinheit;
 import de.muenchen.dave.domain.enums.Fahrzeug;
 import de.muenchen.dave.util.geo.CoordinateUtil;
 import java.time.LocalDate;

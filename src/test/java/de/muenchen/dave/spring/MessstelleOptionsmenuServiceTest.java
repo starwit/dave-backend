@@ -8,22 +8,30 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import de.muenchen.dave.DaveBackendApplication;
-import de.muenchen.dave.domain.Kalendertag;
-import de.muenchen.dave.domain.UnauffaelligerTag;
-import de.muenchen.dave.domain.dtos.messstelle.AuffaelligeTageDTO;
-import de.muenchen.dave.services.KalendertagService;
-import de.muenchen.dave.services.messstelle.MessstelleOptionsmenuService;
-import de.muenchen.dave.services.messstelle.UnauffaelligeTageService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import de.muenchen.dave.DaveBackendApplication;
+import de.muenchen.dave.domain.Kalendertag;
+import de.muenchen.dave.domain.UnauffaelligerTag;
+import de.muenchen.dave.domain.dtos.messstelle.AuffaelligeTageDTO;
+import de.muenchen.dave.services.CustomSuggestIndexService;
+import de.muenchen.dave.services.KalendertagService;
+import de.muenchen.dave.services.SucheService;
+import de.muenchen.dave.services.ZaehlstelleIndexService;
+import de.muenchen.dave.services.auswertung.AuswertungVisumService;
+import de.muenchen.dave.services.messstelle.MessstelleIndexService;
+import de.muenchen.dave.services.messstelle.MessstelleOptionsmenuService;
+import de.muenchen.dave.services.messstelle.UnauffaelligeTageService;
+import de.muenchen.dave.services.processzaehldaten.ProcessZaehldatenBelastungsplanService;
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest(
         classes = { DaveBackendApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
@@ -38,6 +46,24 @@ class MessstelleOptionsmenuServiceTest {
 
     @MockitoBean
     private KalendertagService kalendertagService;
+
+    @MockitoBean
+    private MessstelleIndexService  messstelleIndexService;
+
+    @MockitoBean
+    private CustomSuggestIndexService customSuggestIndexService;
+
+    @MockitoBean
+    private ZaehlstelleIndexService zaehlstelleIndexService;
+
+    @MockitoBean
+    private AuswertungVisumService auswertungVisumService;
+
+    @MockitoBean
+    private ProcessZaehldatenBelastungsplanService processZaehldatenBelastungsplanService;
+
+    @MockitoBean
+    private SucheService sucheService;
 
     @Autowired
     private MessstelleOptionsmenuService messstelleOptionsmenuService;

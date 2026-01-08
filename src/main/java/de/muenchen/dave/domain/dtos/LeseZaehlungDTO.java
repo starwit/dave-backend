@@ -3,7 +3,6 @@ package de.muenchen.dave.domain.dtos;
 import de.muenchen.dave.domain.dtos.laden.ZeitauswahlDTO;
 import de.muenchen.dave.domain.elasticsearch.Fahrbeziehung;
 import de.muenchen.dave.domain.elasticsearch.Knotenarm;
-import de.muenchen.dave.domain.elasticsearch.PkwEinheit;
 import de.muenchen.dave.domain.enums.Fahrzeug;
 import java.io.Serializable;
 import java.util.Date;
@@ -68,7 +67,7 @@ public class LeseZaehlungDTO implements Serializable {
      */
     String schulZeiten;
 
-    PkwEinheit pkwEinheit;
+    PkwEinheitDTO pkwEinheit;
 
     List<Fahrzeug> kategorien;
 

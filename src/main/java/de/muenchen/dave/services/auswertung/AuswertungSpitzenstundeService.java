@@ -1,10 +1,11 @@
 package de.muenchen.dave.services.auswertung;
 
+import de.muenchen.dave.domain.PkwEinheit;
 import de.muenchen.dave.domain.Zeitintervall;
 import de.muenchen.dave.domain.dtos.OptionsDTO;
+import de.muenchen.dave.domain.dtos.PkwEinheitDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeAuswertungSpitzenstundeDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatumDTO;
-import de.muenchen.dave.domain.elasticsearch.PkwEinheit;
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.domain.enums.FahrbewegungKreisverkehr;
@@ -194,7 +195,7 @@ public class AuswertungSpitzenstundeService {
      * {@link LadeAuswertungSpitzenstundeDTO} durch.
      *
      * @param spitzenstunde als {@link Zeitintervall}.
-     * @param pkwEinheit als {@link PkwEinheit}
+     * @param pkwEinheit als {@link PkwEinheitDTO}
      * @return {@link LadeAuswertungSpitzenstundeDTO} des {@link Zeitintervall}s.
      */
     public LadeAuswertungSpitzenstundeDTO mapToAuswertungSpitzenstundeDTO(final Zeitintervall spitzenstunde,
