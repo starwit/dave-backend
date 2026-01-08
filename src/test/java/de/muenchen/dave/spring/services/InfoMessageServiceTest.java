@@ -10,7 +10,6 @@ import de.muenchen.dave.DaveBackendApplication;
 import de.muenchen.dave.domain.InfoMessage;
 import de.muenchen.dave.domain.dtos.InfoMessageDTO;
 import de.muenchen.dave.domain.relationaldb.InfoMessageRandomFactory;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.repositories.relationaldb.InfoMessageRepository;
@@ -40,9 +39,6 @@ public class InfoMessageServiceTest {
 
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     @Autowired
     private InfoMessageService infoMessageService;

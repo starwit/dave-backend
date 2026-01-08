@@ -1,5 +1,18 @@
 package de.muenchen.dave.domain.mapper;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+
 import de.muenchen.dave.domain.dtos.OpenZaehlungDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BearbeiteFahrbeziehungDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BearbeiteZaehlungDTO;
@@ -11,20 +24,7 @@ import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.domain.enums.Zaehlart;
 import de.muenchen.dave.services.IndexServiceUtils;
 import de.muenchen.dave.util.DaveConstants;
-import de.muenchen.dave.util.SuchwortUtil;
 import de.muenchen.dave.util.ZaehldatenProcessingUtil;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ZaehlungMapper {
@@ -65,18 +65,6 @@ public interface ZaehlungMapper {
         }
 
         bean.setKreuzungsname(IndexServiceUtils.createKreuzungsname(bean.getKreuzungsname(), bean));
-
-        final Set<String> generatedSuchwoerter = SuchwortUtil.generateSuchworteOfZaehlung(bean);
-
-        if (CollectionUtils.isEmpty(bean.getSuchwoerter())) {
-            bean.setSuchwoerter(new ArrayList<>());
-        }
-        if (CollectionUtils.isNotEmpty(generatedSuchwoerter)) {
-            bean.getSuchwoerter().addAll(generatedSuchwoerter);
-        }
-        if (CollectionUtils.isNotEmpty(dto.getCustomSuchwoerter())) {
-            bean.getSuchwoerter().addAll(dto.getCustomSuchwoerter());
-        }
     }
 
     @AfterMapping

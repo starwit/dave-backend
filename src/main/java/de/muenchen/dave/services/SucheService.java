@@ -18,7 +18,6 @@ import de.muenchen.dave.domain.dtos.suche.SucheMessstelleSuggestDTO;
 import de.muenchen.dave.domain.dtos.suche.SucheWordSuggestDTO;
 import de.muenchen.dave.domain.dtos.suche.SucheZaehlstelleSuggestDTO;
 import de.muenchen.dave.domain.dtos.suche.SucheZaehlungSuggestDTO;
-import de.muenchen.dave.domain.elasticsearch.CustomSuggest;
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.domain.elasticsearch.detektor.Messstelle;
@@ -512,7 +511,6 @@ public class SucheService {
                 .suggesters("zaehlstelle-suggest", fieldSuggester)
                 .build();
         final var searchRequest = new SearchRequest.Builder()
-                .index(elasticsearchOperations.getIndexCoordinatesFor(CustomSuggest.class).getIndexName())
                 .source(sourceBuilder -> sourceBuilder.filter(filterBuilder -> filterBuilder.includes("suggest")))
                 .suggest(suggester)
                 .build();
@@ -525,7 +523,7 @@ public class SucheService {
          * Completion-Suggester ab.
          */
         return elasticsearchClient
-                .search(searchRequest, CustomSuggest.class)
+                .search(searchRequest)
                 .suggest()
                 .values()
                 .stream()
@@ -612,10 +610,11 @@ public class SucheService {
      * @return gefunden = true
      */
     public boolean filterZaehlung(final List<String> words, final Zaehlung z) {
+        //TODO: Rewrite Suchwoerter filter
         final Optional<String> finding = words.stream()
                 .filter(
-                        w -> z.getDatum().format(DATE_TIME_FORMATTER).startsWith(this.cleanseDateAndReturnIfWordIsDateOrJustReturnWord(w)) ||
-                                z.getSuchwoerter().stream().anyMatch(s -> StringUtils.startsWithIgnoreCase(s, w)))
+                        w -> z.getDatum().format(DATE_TIME_FORMATTER).startsWith(this.cleanseDateAndReturnIfWordIsDateOrJustReturnWord(w))
+                                || z.getProjektName().toLowerCase().contains(w.toLowerCase()))
                 .findAny();
         return finding.isPresent();
     }

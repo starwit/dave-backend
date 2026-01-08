@@ -26,7 +26,6 @@ import de.muenchen.dave.domain.enums.ZaehldatenIntervall;
 import de.muenchen.dave.domain.enums.Zaehldauer;
 import de.muenchen.dave.domain.enums.Zeitblock;
 import de.muenchen.dave.exceptions.DataNotFoundException;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.repositories.relationaldb.ZeitintervallRepository;
@@ -73,9 +72,6 @@ class LadeZaehldatenServiceSpringTest {
 
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     @BeforeEach
     public void beforeEach() {

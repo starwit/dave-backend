@@ -99,8 +99,6 @@ public class ZaehlungMapperTests {
         assertThat(dto, hasProperty("wetter", equalTo(bean.getWetter())));
         assertThat(dto, hasProperty("zaehldauer", equalTo(bean.getZaehldauer())));
         assertThat(dto, hasProperty("schulZeiten", equalTo(bean.getSchulZeiten())));
-        assertThat(dto, hasProperty("customSuchwoerter", equalTo(bean.getCustomSuchwoerter())));
-
         assertThat(dto, hasProperty("sonderzaehlung", is(bean.getSonderzaehlung())));
     }
 

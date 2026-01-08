@@ -4,12 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import com.google.common.collect.Lists;
-import de.muenchen.dave.domain.dtos.ZaehlartenKarteDTO;
-import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
-import de.muenchen.dave.domain.elasticsearch.Zaehlung;
-import de.muenchen.dave.domain.enums.Zaehlart;
-import de.muenchen.dave.util.SuchwortUtil;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,9 +12,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+
+import com.google.common.collect.Lists;
+
+import de.muenchen.dave.domain.dtos.ZaehlartenKarteDTO;
+import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
+import de.muenchen.dave.domain.elasticsearch.Zaehlung;
+import de.muenchen.dave.domain.enums.Zaehlart;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SucheServiceTests {
@@ -131,7 +133,6 @@ public class SucheServiceTests {
         Zaehlung z1 = new Zaehlung();
         z1.setDatum(LocalDate.parse("2017-04-03"));
         z1.setProjektName("Foobla");
-        z1.setSuchwoerter(new ArrayList<>(SuchwortUtil.generateSuchworteOfZaehlung(z1)));
 
         ArrayList<String> w1 = Lists.newArrayList("Moosach", "Foo");
         assertThat(this.service.filterZaehlung(w1, z1), is(true));
@@ -152,15 +153,12 @@ public class SucheServiceTests {
         Zaehlung z1 = new Zaehlung();
         z1.setDatum(LocalDate.parse("2017-04-03"));
         z1.setProjektName("Foobla");
-        z1.setSuchwoerter(new ArrayList<>(SuchwortUtil.generateSuchworteOfZaehlung(z1)));
         Zaehlung z2 = new Zaehlung();
         z2.setDatum(LocalDate.parse("2014-07-20"));
         z2.setProjektName("foo");
-        z2.setSuchwoerter(new ArrayList<>(SuchwortUtil.generateSuchworteOfZaehlung(z2)));
         Zaehlung z3 = new Zaehlung();
         z3.setDatum(LocalDate.parse("2019-08-04"));
         z3.setProjektName("bar");
-        z3.setSuchwoerter(new ArrayList<>(SuchwortUtil.generateSuchworteOfZaehlung(z3)));
         zs1.setZaehlungen(Lists.newArrayList(z1, z2, z3));
 
         // Test mit Datum

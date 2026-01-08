@@ -45,12 +45,10 @@ public class MessstelleRandomFactory {
         suchwoerter.add(fakerInstance.company().buzzword());
         suchwoerter.add(fakerInstance.company().buzzword());
         suchwoerter.add(fakerInstance.company().buzzword());
-        messstelle.setSuchwoerter(suchwoerter);
         final List<String> customSuchwoerter = new ArrayList<>();
         customSuchwoerter.add(fakerInstance.company().buzzword());
         customSuchwoerter.add(fakerInstance.company().buzzword());
         customSuchwoerter.add(fakerInstance.company().buzzword());
-        messstelle.setCustomSuchwoerter(customSuchwoerter);
         messstelle.setMessquerschnitte(MessquerschnittRandomFactory.getSomeMessquerschnitte());
         messstelle.setMessfaehigkeiten(MessfaehigkeitRandomFactory.getSomeMessfaehigkeiten());
         messstelle.setLageplanVorhanden(fakerInstance.bool().bool());

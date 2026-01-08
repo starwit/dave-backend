@@ -1,5 +1,23 @@
 package de.muenchen.dave.domain.mapper.detektor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Context;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+
 import de.muenchen.dave.domain.Kalendertag;
 import de.muenchen.dave.domain.UnauffaelligerTag;
 import de.muenchen.dave.domain.elasticsearch.detektor.Messfaehigkeit;
@@ -14,23 +32,6 @@ import de.muenchen.dave.geodateneai.gen.model.MessfaehigkeitDto;
 import de.muenchen.dave.geodateneai.gen.model.MessquerschnittDto;
 import de.muenchen.dave.geodateneai.gen.model.MessstelleDto;
 import de.muenchen.dave.geodateneai.gen.model.UnauffaelligerTagDto;
-import de.muenchen.dave.util.SuchwortUtil;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Context;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 @Mapper(
         uses = { FahrzeugklassenMapper.class, VerkehrsartMapper.class },
@@ -78,18 +79,6 @@ public interface MessstelleReceiverMapper {
             bean.setFahrzeugklasse(Fahrzeugklasse.RAD);
         }
 
-        // Suchworte setzen
-        final Set<String> generatedSuchwoerter = SuchwortUtil.generateSuchworteOfMessstelle(bean, stadtbezirkMapper);
-
-        bean.setSuchwoerter(new ArrayList<>());
-        if (CollectionUtils.isNotEmpty(generatedSuchwoerter)) {
-            bean.getSuchwoerter().addAll(generatedSuchwoerter);
-        }
-
-        if (CollectionUtils.isNotEmpty(bean.getCustomSuchwoerter())) {
-            bean.getSuchwoerter().addAll(bean.getCustomSuchwoerter());
-        }
-
         if (CollectionUtils.isEmpty(bean.getMessquerschnitte())) {
             bean.setMessquerschnitte(new ArrayList<>());
         }
@@ -109,8 +98,6 @@ public interface MessstelleReceiverMapper {
     @Mapping(target = "sichtbarDatenportal", ignore = true)
     @Mapping(target = "kommentar", ignore = true)
     @Mapping(target = "standort", ignore = true)
-    @Mapping(target = "customSuchwoerter", ignore = true)
-    @Mapping(target = "suchwoerter", ignore = true)
     @Mapping(target = "geprueft", ignore = true)
     @Mapping(target = "messquerschnitte", ignore = true)
     @Mapping(target = "lageplanVorhanden", ignore = true)

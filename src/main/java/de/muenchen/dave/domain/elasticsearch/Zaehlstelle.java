@@ -47,10 +47,6 @@ public class Zaehlstelle {
     @Field(type = FieldType.Text)
     String grundLetzteZaehlung;
 
-    List<String> suchwoerter;
-
-    List<String> customSuchwoerter;
-
     List<Zaehlung> zaehlungen = new ArrayList<>();
 
     /**

@@ -3,6 +3,16 @@ package de.muenchen.dave.domain.mapper;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+
 import de.muenchen.dave.domain.dtos.messstelle.EditMessquerschnittDTO;
 import de.muenchen.dave.domain.dtos.messstelle.EditMessstelleDTO;
 import de.muenchen.dave.domain.dtos.messstelle.MessstelleTooltipDTO;
@@ -18,16 +28,7 @@ import de.muenchen.dave.domain.enums.Fahrzeugklasse;
 import de.muenchen.dave.domain.enums.Verkehrsart;
 import de.muenchen.dave.domain.mapper.detektor.MessstelleMapper;
 import de.muenchen.dave.domain.mapper.detektor.MessstelleMapperImpl;
-import de.muenchen.dave.util.SuchwortUtil;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 @Slf4j
 class MessstelleMapperTests {
@@ -101,7 +102,6 @@ class MessstelleMapperTests {
         expected.setGeprueft(bean.getGeprueft());
         expected.setKommentar(bean.getKommentar());
         expected.setStandort(bean.getStandort());
-        expected.setCustomSuchwoerter(bean.getCustomSuchwoerter());
         expected.setMessquerschnitte(this.mapper.bean2editDto(bean.getMessquerschnitte()));
         expected.setMessfaehigkeiten(this.mapper.messfaehigkeitBean2EditMessfaehigkeitDto(bean.getMessfaehigkeiten()));
         expected.setLageplanVorhanden(bean.getLageplanVorhanden());
@@ -172,10 +172,6 @@ class MessstelleMapperTests {
         expected.setGeprueft(true);
         expected.setKommentar(updatedData.getKommentar());
         expected.setStandort(updatedData.getStandort());
-        expected.setSuchwoerter(new ArrayList<>());
-        expected.getSuchwoerter().addAll(SuchwortUtil.generateSuchworteOfMessstelle(bean, stadtbezirkMapper));
-        expected.getSuchwoerter().addAll(updatedData.getCustomSuchwoerter());
-        expected.setCustomSuchwoerter(updatedData.getCustomSuchwoerter());
 
         final Messstelle actual = this.mapper.updateMessstelle(bean, updatedData, stadtbezirkMapper);
         Assertions.assertThat(actual)

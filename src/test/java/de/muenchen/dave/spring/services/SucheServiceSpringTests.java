@@ -24,11 +24,9 @@ import de.muenchen.dave.domain.dtos.ZaehlartenKarteDTO;
 import de.muenchen.dave.domain.dtos.ZaehlstelleKarteDTO;
 import de.muenchen.dave.domain.dtos.suche.SearchAndFilterOptionsDTO;
 import de.muenchen.dave.domain.dtos.suche.SucheComplexSuggestsDTO;
-import de.muenchen.dave.domain.elasticsearch.CustomSuggest;
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.domain.enums.Status;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.SucheService;
@@ -69,8 +67,7 @@ public class SucheServiceSpringTests {
     CacheManager cacheManager;
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
+
     @MockitoBean
     private ZaehlstelleIndex zaehlstelleIndex;
     @MockitoBean
@@ -89,15 +86,6 @@ public class SucheServiceSpringTests {
                 this.createSampleData().get(0),
                 this.createSampleData().get(4)));
         when(zaehlstelleIndex.suggestSearch(any(), any())).thenReturn(resultComplexSuggest);
-        when(elasticsearchOperations.getIndexCoordinatesFor(CustomSuggest.class)).thenReturn(IndexCoordinates.of("the-index"));
-        when(elasticsearchClient.search(any(SearchRequest.class), eq(CustomSuggest.class)))
-                .thenReturn(SearchResponse.of(
-                        builder -> builder
-                                .suggest(new HashMap<>())
-                                .took(200)
-                                .timedOut(false)
-                                .shards(shardsBuilder -> shardsBuilder.failed(0).successful(1).total(1).failures(List.of()))
-                                .hits(hitsBuilder -> hitsBuilder.hits(List.of()))));
         when(messstelleIndex.suggestSearch(any(), any())).thenReturn(new PageImpl<>(List.of()));
 
         SucheComplexSuggestsDTO dto1 = this.service.getComplexSuggest("Moo", searchAndFilterOptions, false);
@@ -231,7 +219,6 @@ public class SucheServiceSpringTests {
         z1_1.setPunkt(new GeoPoint(1, 1));
         z1_1.setSonderzaehlung(true);
         z1_1.setStatus(Status.ACTIVE.name());
-        z1_1.setSuchwoerter(List.of("Moosach", "Projektz11"));
 
         Zaehlung z1_2 = new Zaehlung();
         z1_2.setId("1_2");
@@ -241,7 +228,6 @@ public class SucheServiceSpringTests {
         z1_2.setPunkt(new GeoPoint(1, 2));
         z1_2.setSonderzaehlung(false);
         z1_2.setStatus(Status.ACTIVE.name());
-        z1_2.setSuchwoerter(List.of("Moosach", "Projektz12"));
 
         z1.setZaehlungen(Lists.newArrayList(z1_1, z1_2));
 
@@ -261,7 +247,6 @@ public class SucheServiceSpringTests {
         z2_1.setPunkt(new GeoPoint(2, 1));
         z2_1.setSonderzaehlung(false);
         z2_1.setStatus(Status.ACTIVE.name());
-        z2_1.setSuchwoerter(List.of("Sendling", "Projektz21"));
 
         z2.setZaehlungen(Lists.newArrayList(z2_1));
 
@@ -281,7 +266,6 @@ public class SucheServiceSpringTests {
         z3_1.setPunkt(new GeoPoint(3, 1));
         z3_1.setSonderzaehlung(false);
         z3_1.setStatus(Status.ACTIVE.name());
-        z3_1.setSuchwoerter(List.of("Schwabing", "Foop"));
 
         Zaehlung z3_2 = new Zaehlung();
         z3_2.setId("3_2");
@@ -291,7 +275,6 @@ public class SucheServiceSpringTests {
         z3_2.setPunkt(new GeoPoint(3, 2));
         z3_2.setSonderzaehlung(false);
         z3_2.setStatus(Status.ACTIVE.name());
-        z3_2.setSuchwoerter(List.of("Schwabing", "Projektz32"));
 
         z3.setZaehlungen(Lists.newArrayList(z3_1, z3_2));
 
@@ -311,7 +294,6 @@ public class SucheServiceSpringTests {
         z4_1.setPunkt(new GeoPoint(4, 1));
         z4_1.setSonderzaehlung(false);
         z4_1.setStatus(Status.ACTIVE.name());
-        z4_1.setSuchwoerter(List.of("Bogenhausen", "Hans"));
 
         Zaehlung z4_2 = new Zaehlung();
         z4_2.setId("4_2");
@@ -321,7 +303,6 @@ public class SucheServiceSpringTests {
         z4_2.setPunkt(new GeoPoint(4, 2));
         z4_2.setSonderzaehlung(false);
         z4_2.setStatus(Status.ACTIVE.name());
-        z4_2.setSuchwoerter(List.of("Bogenhausen", "Petra"));
 
         Zaehlung z4_3 = new Zaehlung();
         z4_3.setId("4_3");
@@ -331,7 +312,6 @@ public class SucheServiceSpringTests {
         z4_3.setPunkt(new GeoPoint(4, 3));
         z4_3.setSonderzaehlung(false);
         z4_3.setStatus(Status.ACTIVE.name());
-        z4_3.setSuchwoerter(List.of("Bogenhausen", "Gabi"));
 
         z4.setZaehlungen(Lists.newArrayList(z4_1, z4_2, z4_3));
 

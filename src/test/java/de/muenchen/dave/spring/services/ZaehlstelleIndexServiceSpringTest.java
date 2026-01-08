@@ -10,6 +10,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import de.muenchen.dave.DaveBackendApplication;
 import de.muenchen.dave.domain.dtos.BearbeiteZaehlstelleDTORandomFactory;
 import de.muenchen.dave.domain.dtos.NextZaehlstellennummerDTO;
@@ -23,21 +35,10 @@ import de.muenchen.dave.domain.enums.Status;
 import de.muenchen.dave.domain.mapper.StadtbezirkMapper;
 import de.muenchen.dave.domain.mapper.ZaehlstelleMapper;
 import de.muenchen.dave.exceptions.BrokenInfrastructureException;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.ZaehlstelleIndexService;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(
         classes = { DaveBackendApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
@@ -55,9 +56,6 @@ public class ZaehlstelleIndexServiceSpringTest {
 
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     @MockitoBean
     private ZaehlstelleMapper zaehlstelleMapper;

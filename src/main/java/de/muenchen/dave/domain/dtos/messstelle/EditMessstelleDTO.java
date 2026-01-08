@@ -33,6 +33,7 @@ public class EditMessstelleDTO implements Serializable {
     private Boolean geprueft;
     private String kommentar;
     private String standort;
+    //TODO: remove customSuchwoerter field
     private List<String> customSuchwoerter;
 
     private List<EditMessquerschnittDTO> messquerschnitte;

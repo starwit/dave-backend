@@ -22,7 +22,6 @@ import de.muenchen.dave.DaveBackendApplication;
 import de.muenchen.dave.domain.Kalendertag;
 import de.muenchen.dave.domain.UnauffaelligerTag;
 import de.muenchen.dave.domain.dtos.messstelle.AuffaelligeTageDTO;
-import de.muenchen.dave.services.CustomSuggestIndexService;
 import de.muenchen.dave.services.KalendertagService;
 import de.muenchen.dave.services.SucheService;
 import de.muenchen.dave.services.ZaehlstelleIndexService;
@@ -49,9 +48,6 @@ class MessstelleOptionsmenuServiceTest {
 
     @MockitoBean
     private MessstelleIndexService  messstelleIndexService;
-
-    @MockitoBean
-    private CustomSuggestIndexService customSuggestIndexService;
 
     @MockitoBean
     private ZaehlstelleIndexService zaehlstelleIndexService;

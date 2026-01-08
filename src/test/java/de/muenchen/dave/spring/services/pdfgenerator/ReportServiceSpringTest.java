@@ -12,7 +12,6 @@ import de.muenchen.dave.domain.pdf.assets.HeadingAsset;
 import de.muenchen.dave.domain.pdf.assets.ImageAsset;
 import de.muenchen.dave.domain.pdf.assets.PagebreakAsset;
 import de.muenchen.dave.domain.pdf.assets.TextAsset;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.pdfgenerator.ReportService;
@@ -37,8 +36,6 @@ public class ReportServiceSpringTest {
     private ZaehlstelleIndex zaehlstelleIndex;
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     @Test
     public void generateReportHtml() {

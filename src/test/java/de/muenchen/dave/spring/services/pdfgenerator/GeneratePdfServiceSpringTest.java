@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.is;
 import com.openhtmltopdf.pdfboxout.visualtester.PdfVisualTester;
 import com.openhtmltopdf.pdfboxout.visualtester.PdfVisualTester.PdfCompareResult;
 import de.muenchen.dave.DaveBackendApplication;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.pdfgenerator.GeneratePdfService;
@@ -43,8 +42,6 @@ public class GeneratePdfServiceSpringTest {
     private ZaehlstelleIndex zaehlstelleIndex;
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     /**
      * Übernommen von <a href=

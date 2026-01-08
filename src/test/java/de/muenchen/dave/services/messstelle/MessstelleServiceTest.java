@@ -11,7 +11,6 @@ import de.muenchen.dave.domain.enums.ZaehldatenIntervall;
 import de.muenchen.dave.domain.mapper.StadtbezirkMapper;
 import de.muenchen.dave.domain.mapper.detektor.MessstelleMapper;
 import de.muenchen.dave.domain.mapper.detektor.MessstelleMapperImpl;
-import de.muenchen.dave.services.CustomSuggestIndexService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,9 +32,6 @@ class MessstelleServiceTest {
     @Mock
     private MessstelleIndexService messstelleIndexService;
 
-    @Mock
-    private CustomSuggestIndexService customSuggestIndexService;
-
     private final MessstelleMapper messstelleMapper = new MessstelleMapperImpl();
 
     private final StadtbezirkMapper stadtbezirkMapper = new StadtbezirkMapper();
@@ -44,11 +40,10 @@ class MessstelleServiceTest {
 
     @BeforeEach
     public void beforeEach() throws IllegalAccessException {
-        Mockito.reset(messstelleIndexService, customSuggestIndexService);
+        Mockito.reset(messstelleIndexService);
         FieldUtils.writeField(stadtbezirkMapper, "stadtbezirkeMap", new HashMap<String, String>(), true);
         messstelleService = new MessstelleService(
                 messstelleIndexService,
-                customSuggestIndexService,
                 messstelleMapper,
                 stadtbezirkMapper);
     }

@@ -12,7 +12,6 @@ import de.muenchen.dave.domain.elasticsearch.detektor.Messstelle;
 import de.muenchen.dave.domain.enums.Verkehrsart;
 import de.muenchen.dave.domain.mapper.StadtbezirkMapper;
 import de.muenchen.dave.domain.mapper.detektor.MessstelleMapper;
-import de.muenchen.dave.services.CustomSuggestIndexService;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -35,7 +34,6 @@ import org.springframework.stereotype.Service;
 public class MessstelleService {
 
     private final MessstelleIndexService messstelleIndexService;
-    private final CustomSuggestIndexService customSuggestIndexService;
     private final MessstelleMapper messstelleMapper;
     private final StadtbezirkMapper stadtbezirkMapper;
 
@@ -75,7 +73,6 @@ public class MessstelleService {
     public BackendIdDTO updateMessstelle(final EditMessstelleDTO dto) {
         final Messstelle actualMessstelle = messstelleIndexService.findByIdOrThrowException(dto.getId());
         final Messstelle aktualisiert = messstelleMapper.updateMessstelle(actualMessstelle, dto, stadtbezirkMapper);
-        customSuggestIndexService.updateSuggestionsForMessstelle(aktualisiert);
         final Messstelle messstelle = messstelleIndexService.saveMessstelle(aktualisiert);
         final BackendIdDTO backendIdDTO = new BackendIdDTO();
         backendIdDTO.setId(messstelle.getId());

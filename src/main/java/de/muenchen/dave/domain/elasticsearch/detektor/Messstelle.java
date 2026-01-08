@@ -58,8 +58,6 @@ public class Messstelle {
     Boolean geprueft = false;
     String kommentar;
     String standort;
-    List<String> suchwoerter;
-    List<String> customSuchwoerter;
     List<Messquerschnitt> messquerschnitte = new ArrayList<>();
     List<Messfaehigkeit> messfaehigkeiten = new ArrayList<>();
     Boolean lageplanVorhanden = false;

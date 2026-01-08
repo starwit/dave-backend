@@ -29,7 +29,6 @@ import de.muenchen.dave.domain.pdf.templates.DatentabellePdf;
 import de.muenchen.dave.domain.pdf.templates.DiagrammPdf;
 import de.muenchen.dave.domain.pdf.templates.GangliniePdf;
 import de.muenchen.dave.exceptions.DataNotFoundException;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.ZaehlstelleIndexService;
@@ -74,9 +73,6 @@ public class FillPdfBeanServiceSpringTest {
     private MessstelleIndex messstelleIndex;
 
     @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
-
-    @MockitoBean
     private ZaehlstelleIndex zaehlstelleIndex;
 
     @Autowired
@@ -111,7 +107,6 @@ public class FillPdfBeanServiceSpringTest {
         zaehlung.setZaehldauer(Zaehldauer.DAUER_2_X_4_STUNDEN.toString());
         zaehlung.setQuelle(Quelle.MANUALLY.toString());
         zaehlung.setSchulZeiten(null);
-        zaehlung.setSuchwoerter(null);
         zaehlung.setFahrbeziehungen(Lists.newArrayList());
         zaehlung.setKreuzungsname("Leopoldstr. - Feilitzschstr. - Herzogstr.");
 

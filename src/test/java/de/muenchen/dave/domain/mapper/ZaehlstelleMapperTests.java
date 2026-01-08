@@ -71,7 +71,6 @@ public class ZaehlstelleMapperTests {
 
         assertThat(dto, hasProperty("nummer", equalTo(bean.getNummer())));
         assertThat(dto, hasProperty("stadtbezirkNummer", equalTo(bean.getStadtbezirkNummer())));
-        assertThat(dto, hasProperty("customSuchwoerter", equalTo(bean.getCustomSuchwoerter())));
         assertThat(dto, hasProperty("punkt", equalTo(bean.getPunkt())));
 
         assertThat(dto, hasProperty("zaehlungen", notNullValue()));

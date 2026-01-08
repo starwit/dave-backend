@@ -3,7 +3,19 @@ package de.muenchen.dave.domain.mapper;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+
 import com.google.common.base.Splitter;
+
 import de.muenchen.dave.domain.elasticsearch.MessquerschnittRandomFactory;
 import de.muenchen.dave.domain.elasticsearch.MessstelleRandomFactory;
 import de.muenchen.dave.domain.elasticsearch.detektor.Messfaehigkeit;
@@ -15,18 +27,7 @@ import de.muenchen.dave.domain.mapper.detektor.MessstelleReceiverMapper;
 import de.muenchen.dave.domain.mapper.detektor.MessstelleReceiverMapperImpl;
 import de.muenchen.dave.geodateneai.gen.model.MessquerschnittDto;
 import de.muenchen.dave.geodateneai.gen.model.MessstelleDto;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 @Slf4j
 class MessstelleReceiverMapperTests {
@@ -58,18 +59,11 @@ class MessstelleReceiverMapperTests {
         expected.setPunkt(new GeoPoint(dto.getLatitude(), dto.getLongitude()));
         expected.setSichtbarDatenportal(false);
         expected.setGeprueft(false);
-        expected.setSuchwoerter(new ArrayList<>());
         expected.setHersteller(dto.getHersteller());
         expected.setFahrzeugklasse(new FahrzeugklassenMapperImpl().map(dto.getFahrzeugklasse()));
         expected.setDetektierteVerkehrsart(new VerkehrsartMapperImpl().map(dto.getDetektierteVerkehrsart()));
         final String stadtbezirkBezeichnung = "Schwabing-West";
         final Set<String> stadtbezirke = new HashSet<>(Splitter.on("-").omitEmptyStrings().trimResults().splitToList(stadtbezirkBezeichnung));
-        expected.getSuchwoerter().addAll(stadtbezirke);
-        if (CollectionUtils.isNotEmpty(stadtbezirke) && stadtbezirke.size() > 1) {
-            expected.getSuchwoerter().add(stadtbezirkBezeichnung);
-        }
-        expected.getSuchwoerter().add(dto.getName());
-        expected.getSuchwoerter().add(dto.getMstId());
 
         expected.setMessquerschnitte(mapper.createMessquerschnitte(dto.getMessquerschnitte()));
         expected.setMessfaehigkeiten(mapper.createMessfaehigkeit(dto.getMessfaehigkeiten()));
@@ -142,16 +136,6 @@ class MessstelleReceiverMapperTests {
         expected.setHersteller(updatedData.getHersteller());
         expected.setFahrzeugklasse(new FahrzeugklassenMapperImpl().map(updatedData.getFahrzeugklasse()));
         expected.setDetektierteVerkehrsart(new VerkehrsartMapperImpl().map(updatedData.getDetektierteVerkehrsart()));
-        expected.setSuchwoerter(new ArrayList<>());
-        expected.getSuchwoerter().addAll(bean.getCustomSuchwoerter());
-        expected.getSuchwoerter().add(updatedData.getMstId());
-        expected.getSuchwoerter().add(updatedData.getName());
-        final String stadtbezirk = "Schwabing-West";
-        final Set<String> stadtbezirke = new HashSet<>(Splitter.on("-").omitEmptyStrings().trimResults().splitToList(stadtbezirk));
-        expected.getSuchwoerter().addAll(stadtbezirke);
-        if (CollectionUtils.isNotEmpty(stadtbezirke) && stadtbezirke.size() > 1) {
-            expected.getSuchwoerter().add(stadtbezirk);
-        }
         expected.setMessfaehigkeiten(this.mapper.createMessfaehigkeit(updatedData.getMessfaehigkeiten()));
         expected.setDatumLetztePlausibleMessung(updatedData.getDatumLetztePlausibleMessung());
 
@@ -162,7 +146,6 @@ class MessstelleReceiverMapperTests {
         expected.setLageplanVorhanden(bean.getLageplanVorhanden());
         expected.setKommentar(bean.getKommentar());
         expected.setStandort(bean.getStandort());
-        expected.setCustomSuchwoerter(bean.getCustomSuchwoerter());
         expected.setPunkt(bean.getPunkt());
         expected.setMessquerschnitte(bean.getMessquerschnitte());
 

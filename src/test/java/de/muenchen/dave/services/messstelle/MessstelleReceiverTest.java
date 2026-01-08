@@ -1,5 +1,20 @@
 package de.muenchen.dave.services.messstelle;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import de.muenchen.dave.domain.elasticsearch.MessquerschnittRandomFactory;
 import de.muenchen.dave.domain.elasticsearch.detektor.Messquerschnitt;
 import de.muenchen.dave.domain.elasticsearch.detektor.Messstelle;
@@ -13,23 +28,9 @@ import de.muenchen.dave.domain.model.MessstelleChangeMessage;
 import de.muenchen.dave.geodateneai.gen.api.MessstelleApi;
 import de.muenchen.dave.geodateneai.gen.model.MessquerschnittDto;
 import de.muenchen.dave.geodateneai.gen.model.MessstelleDto;
-import de.muenchen.dave.services.CustomSuggestIndexService;
 import de.muenchen.dave.services.email.EmailSendService;
 import de.muenchen.dave.services.lageplan.LageplanService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -38,9 +39,6 @@ public class MessstelleReceiverTest {
 
     @Mock
     private MessstelleIndexService messstelleIndexService;
-
-    @Mock
-    private CustomSuggestIndexService customSuggestIndexService;
 
     private final StadtbezirkMapper stadtbezirkMapper = new StadtbezirkMapper();
 
@@ -62,10 +60,9 @@ public class MessstelleReceiverTest {
         messstelleReceiverMapper = new MessstelleReceiverMapperImpl();
         FieldUtils.writeField(messstelleReceiverMapper, "fahrzeugklassenMapper", new FahrzeugklassenMapperImpl(), true);
         FieldUtils.writeField(messstelleReceiverMapper, "verkehrsartMapper", new VerkehrsartMapperImpl(), true);
-        Mockito.reset(messstelleIndexService, customSuggestIndexService, lageplanService, emailSendService, messstelleApi);
+        Mockito.reset(messstelleIndexService, lageplanService, emailSendService, messstelleApi);
         messstelleReceiver = new MessstelleReceiver(
                 messstelleIndexService,
-                customSuggestIndexService,
                 stadtbezirkMapper,
                 lageplanService,
                 emailSendService,
@@ -168,7 +165,6 @@ public class MessstelleReceiverTest {
         updatedMessstelle.setStatus(MessstelleStatus.IN_BESTAND);
         updatedMessstelle.setMessquerschnitte(List.of());
         updatedMessstelle.setMessfaehigkeiten(List.of());
-        updatedMessstelle.setSuchwoerter(List.of("1"));
         updatedMessstelle.setLageplanVorhanden(true);
 
         final var savedMessstelle = new Messstelle();
@@ -177,7 +173,6 @@ public class MessstelleReceiverTest {
         savedMessstelle.setStatus(MessstelleStatus.IN_BESTAND);
         savedMessstelle.setMessquerschnitte(List.of());
         savedMessstelle.setMessfaehigkeiten(List.of());
-        savedMessstelle.setSuchwoerter(List.of("1"));
         savedMessstelle.setLageplanVorhanden(true);
         Mockito.when(messstelleIndexService.saveMessstelle(updatedMessstelle)).thenReturn(savedMessstelle);
 
@@ -192,8 +187,6 @@ public class MessstelleReceiverTest {
         messstelleReceiverSpy.updateMessstelle(existingMessstelle, messstelleDto);
 
         Mockito.verify(lageplanService, Mockito.times(1)).lageplanVorhanden("1");
-
-        Mockito.verify(customSuggestIndexService, Mockito.times(1)).updateSuggestionsForMessstelle(updatedMessstelle);
 
         Mockito.verify(messstelleIndexService, Mockito.times(1)).saveMessstelle(updatedMessstelle);
 
@@ -224,7 +217,6 @@ public class MessstelleReceiverTest {
         updatedMessstelle.setStatus(MessstelleStatus.IN_BESTAND);
         updatedMessstelle.setMessquerschnitte(List.of());
         updatedMessstelle.setMessfaehigkeiten(List.of());
-        updatedMessstelle.setSuchwoerter(List.of("1"));
         updatedMessstelle.setLageplanVorhanden(true);
 
         final var savedMessstelle = new Messstelle();
@@ -233,7 +225,6 @@ public class MessstelleReceiverTest {
         savedMessstelle.setStatus(MessstelleStatus.IN_BESTAND);
         savedMessstelle.setMessquerschnitte(List.of());
         savedMessstelle.setMessfaehigkeiten(List.of());
-        savedMessstelle.setSuchwoerter(List.of("1"));
         savedMessstelle.setLageplanVorhanden(true);
         Mockito.when(messstelleIndexService.saveMessstelle(updatedMessstelle)).thenReturn(savedMessstelle);
 
@@ -248,8 +239,6 @@ public class MessstelleReceiverTest {
         messstelleReceiverSpy.updateMessstelle(existingMessstelle, messstelleDto);
 
         Mockito.verify(lageplanService, Mockito.times(1)).lageplanVorhanden("1");
-
-        Mockito.verify(customSuggestIndexService, Mockito.times(1)).updateSuggestionsForMessstelle(updatedMessstelle);
 
         Mockito.verify(messstelleIndexService, Mockito.times(1)).saveMessstelle(updatedMessstelle);
 

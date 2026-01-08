@@ -19,7 +19,6 @@ import de.muenchen.dave.domain.enums.Status;
 import de.muenchen.dave.exceptions.BrokenInfrastructureException;
 import de.muenchen.dave.exceptions.DataNotFoundException;
 import de.muenchen.dave.exceptions.PlausibilityException;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.persist.ExternalZaehlungPersistierungsService;
@@ -42,9 +41,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @ActiveProfiles(profiles = { SPRING_TEST_PROFILE, SPRING_NO_SECURITY_PROFILE })
 @Slf4j
 class ExternalZaehlungPersistierungsServiceSpringTest {
-
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     @MockitoBean
     private MessstelleIndex messstelleIndex;

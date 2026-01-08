@@ -11,7 +11,6 @@ import de.muenchen.dave.domain.PkwEinheit;
 import de.muenchen.dave.domain.Zeitintervall;
 import de.muenchen.dave.domain.dtos.laden.LadeAuswertungSpitzenstundeDTO;
 import de.muenchen.dave.domain.enums.TypeZeitintervall;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.auswertung.AuswertungSpitzenstundeService;
@@ -38,9 +37,6 @@ class AuswertungSpitzenstundeServiceSpringTest {
 
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     @MockitoBean
     private ZaehlstelleIndex zaehlstelleIndex;

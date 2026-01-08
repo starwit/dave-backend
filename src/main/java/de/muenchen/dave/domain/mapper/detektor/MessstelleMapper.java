@@ -67,7 +67,6 @@ public interface MessstelleMapper {
     @Mapping(target = "fahrzeugklasse", ignore = true)
     @Mapping(target = "detektierteVerkehrsart", ignore = true)
     @Mapping(target = "punkt", ignore = true)
-    @Mapping(target = "suchwoerter", ignore = true)
     @Mapping(target = "messquerschnitte", ignore = true)
     @Mapping(target = "messfaehigkeiten", ignore = true)
     @Mapping(target = "lageplanVorhanden", ignore = true)
@@ -81,18 +80,6 @@ public interface MessstelleMapper {
     default void updateMessstelleAfterMapping(@MappingTarget Messstelle actual, EditMessstelleDTO dto, @Context StadtbezirkMapper stadtbezirkMapper) {
         if (!MessstelleStatus.IN_PLANUNG.equals(actual.getStatus())) {
             actual.setGeprueft(true);
-        }
-
-        // Suchworte setzen
-        final Set<String> generatedSuchwoerter = SuchwortUtil.generateSuchworteOfMessstelle(actual, stadtbezirkMapper);
-
-        actual.setSuchwoerter(new ArrayList<>());
-        if (CollectionUtils.isNotEmpty(generatedSuchwoerter)) {
-            actual.getSuchwoerter().addAll(generatedSuchwoerter);
-        }
-
-        if (CollectionUtils.isNotEmpty(dto.getCustomSuchwoerter())) {
-            actual.getSuchwoerter().addAll(dto.getCustomSuchwoerter());
         }
 
         actual.getMessquerschnitte().forEach(messquerschnitt -> dto.getMessquerschnitte().forEach(dto1 -> {

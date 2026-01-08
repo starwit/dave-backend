@@ -50,7 +50,6 @@ public class ZaehlungRandomFactory {
         z.setWetter(faker.resolve("zaehlung.wetter"));
         z.setZaehldauer(faker.resolve("zaehlung.zeit"));
         z.setSchulZeiten(faker.resolve("zaehlung.schule"));
-        z.setSuchwoerter(Arrays.asList("foo", "bar", "foobar"));
         z.setDienstleisterkennung("dienstleisterkennung");
 
         z.setKnotenarme(Arrays.asList(KnotenarmRandomFactory.getOne(), KnotenarmRandomFactory.getOne()));

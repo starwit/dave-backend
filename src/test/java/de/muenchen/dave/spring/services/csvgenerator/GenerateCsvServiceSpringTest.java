@@ -23,7 +23,6 @@ import de.muenchen.dave.domain.enums.Zaehldauer;
 import de.muenchen.dave.domain.enums.Zeitauswahl;
 import de.muenchen.dave.domain.enums.Zeitblock;
 import de.muenchen.dave.exceptions.DataNotFoundException;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
 import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.GenerateCsvService;
@@ -72,9 +71,6 @@ public class GenerateCsvServiceSpringTest {
     private MessstelleIndex messstelleIndex;
 
     @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
-
-    @MockitoBean
     private ZaehlstelleIndexService indexService;
 
     private static Zaehlung getZaehlung() {
@@ -100,7 +96,6 @@ public class GenerateCsvServiceSpringTest {
         zaehlung.setZaehldauer(Zaehldauer.DAUER_2_X_4_STUNDEN.toString());
         zaehlung.setQuelle(Quelle.MANUALLY.toString());
         zaehlung.setSchulZeiten(null);
-        zaehlung.setSuchwoerter(null);
         zaehlung.setFahrbeziehungen(Lists.newArrayList());
         zaehlung.setKreuzungsname("Leopoldstr. - Feilitzschstr. - Herzogstr.");
 

@@ -79,10 +79,6 @@ public class Zaehlung {
      */
     String schulZeiten;
 
-    List<String> suchwoerter;
-
-    List<String> customSuchwoerter;
-
     PkwEinheit pkwEinheit;
 
     List<String> geographie;

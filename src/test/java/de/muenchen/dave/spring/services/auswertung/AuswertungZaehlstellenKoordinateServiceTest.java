@@ -9,9 +9,7 @@ import static org.mockito.Mockito.when;
 import de.muenchen.dave.DaveBackendApplication;
 import de.muenchen.dave.domain.dtos.laden.LadeAuswertungZaehlstelleKoordinateDTO;
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
-import de.muenchen.dave.domain.elasticsearch.Zaehlung;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
-import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
+import de.muenchen.dave.domain.elasticsearch.Zaehlung;import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.services.ZaehlstelleIndexService;
 import de.muenchen.dave.services.auswertung.AuswertungZaehlstellenKoordinateService;
@@ -42,9 +40,6 @@ class AuswertungZaehlstellenKoordinateServiceTest {
 
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     @MockitoBean
     private ZaehlstelleIndexService indexService;

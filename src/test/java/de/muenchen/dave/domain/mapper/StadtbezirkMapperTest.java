@@ -3,18 +3,19 @@ package de.muenchen.dave.domain.mapper;
 import static de.muenchen.dave.TestConstants.SPRING_NO_SECURITY_PROFILE;
 import static de.muenchen.dave.TestConstants.SPRING_TEST_PROFILE;
 
-import com.github.javafaker.Faker;
-import de.muenchen.dave.DaveBackendApplication;
-import de.muenchen.dave.repositories.elasticsearch.CustomSuggestIndex;
-import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
-import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
-import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import com.github.javafaker.Faker;
+
+import de.muenchen.dave.DaveBackendApplication;
+import de.muenchen.dave.repositories.elasticsearch.MessstelleIndex;
+import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest(
         classes = { DaveBackendApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
@@ -31,8 +32,6 @@ public class StadtbezirkMapperTest {
     private ZaehlstelleIndex zaehlstelleIndex;
     @MockitoBean
     private MessstelleIndex messstelleIndex;
-    @MockitoBean
-    private CustomSuggestIndex customSuggestIndex;
 
     @Test
     public void testBezeichnungOfWithExistingStadtbezirk() {
