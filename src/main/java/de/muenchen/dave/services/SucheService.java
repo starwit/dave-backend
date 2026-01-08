@@ -3,7 +3,6 @@ package de.muenchen.dave.services;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +15,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,12 +24,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
-import co.elastic.clients.elasticsearch.core.search.CompletionSuggester;
-import co.elastic.clients.elasticsearch.core.search.FieldSuggester;
-import co.elastic.clients.elasticsearch.core.search.Suggester;
 import de.muenchen.dave.configuration.CachingConfiguration;
 import de.muenchen.dave.domain.dtos.ErhebungsstelleKarteDTO;
 import de.muenchen.dave.domain.dtos.ZaehlartenKarteDTO;
@@ -83,8 +75,6 @@ public class SucheService {
     private final SucheMapper sucheMapper;
 
     private final StadtbezirkMapper stadtbezirkMapper;
-
-    private final ElasticsearchClient elasticsearchClient;
 
     /**
      * Diese Methode ermittelt aus den im Parameter übergebenen {@link Zaehlung}en, die nach Koordinaten
@@ -480,69 +470,8 @@ public class SucheService {
      */
     @SneakyThrows
     private List<SucheWordSuggestDTO> getSuggestions(final String q) {
-        final String[] splittedWords = q.split(StringUtils.SPACE);
-        final String query = splittedWords[splittedWords.length - 1];
-        final String[] wordsForPrefix = ArrayUtils.subarray(splittedWords, 0, splittedWords.length - 1);
-        final String prefix = Stream.of(wordsForPrefix)
-                /*
-                 * Es wird jedes Wort geprüft, ob es ein Datum ist
-                 * und dann entsprechend aufbereitet, dass damit
-                 * gesucht werden kann.
-                 */
-                .map(this::cleanseDateAndReturnIfWordIsDateOrJustReturnWord)
-                .collect(Collectors.joining(StringUtils.SPACE))
-                .concat(StringUtils.SPACE);
-
-        /*
-         * Erstellen der Query:
-         * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html#querying
-         */
-        final var completionSuggester = new CompletionSuggester.Builder()
-                .field("suggest")
-                .fuzzy(fuzzyBuilder -> fuzzyBuilder.fuzziness("0"))
-                .skipDuplicates(true)
-                .size(3)
-                .build();
-        final var fieldSuggester = new FieldSuggester.Builder()
-                .prefix(query)
-                .completion(completionSuggester)
-                .build();
-        final var suggester = new Suggester.Builder()
-                .suggesters("zaehlstelle-suggest", fieldSuggester)
-                .build();
-        final var searchRequest = new SearchRequest.Builder()
-                .source(sourceBuilder -> sourceBuilder.filter(filterBuilder -> filterBuilder.includes("suggest")))
-                .suggest(suggester)
-                .build();
-
-        /*
-         * Ausführen der Query und Extrahieren der Suchwortvorschläge:
-         * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html#querying
-         *
-         * Die nachfolgenden Aufrufe der Fluent-API bilden den Aufbau der Response eines
-         * Completion-Suggester ab.
-         */
-        return elasticsearchClient
-                .search(searchRequest)
-                .suggest()
-                .values()
-                .stream()
-                .filter(CollectionUtils::isNotEmpty)
-                .flatMap(Collection::stream)
-                .flatMap(suggestion -> CollectionUtils.emptyIfNull(suggestion.completion().options()).stream())
-                .map(CompletionSuggestOption::text)
-                .filter(StringUtils::isNotEmpty)
-                .filter(suggestedText -> {
-                    if (isDatumsbereichSuggestion(prefix) && isDate(suggestedText)) {
-                        final LocalDate prefixDate = getLocalDateOfString(wordsForPrefix[1]);
-                        final LocalDate suggestedDate = getLocalDateOfString(suggestedText);
-                        return suggestedDate.isAfter(prefixDate);
-                    }
-                    return true;
-                })
-                .map(suggestedText -> prefix + suggestedText)
-                .map(SucheWordSuggestDTO::new)
-                .toList();
+        //TODO: not implemented yet
+       return null;
     }
 
     /**
