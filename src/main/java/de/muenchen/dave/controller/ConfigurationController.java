@@ -35,7 +35,7 @@ public class ConfigurationController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Transactional(readOnly = true)
     public ResponseEntity<ConfigurationDTO> getConfiguration() {
-        log.debug("#getMapConfig");
+        log.debug("#getConfiguration");
         try {
             return ResponseEntity.ok(configurationService.getConfiguration());
         } catch (Exception ex) {
