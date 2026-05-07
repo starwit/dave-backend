@@ -17,7 +17,7 @@ import de.muenchen.dave.repositories.relationaldb.ZeitintervallRepository;
 import de.muenchen.dave.services.ZaehlstelleIndexService;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -100,8 +100,8 @@ public class ExternalDetectorService {
         }
         DetectionDTO detection = detections.get(0);
         UUID zaehlungId = detection.getZaehlungId();
-        LocalDateTime start = detection.getStartUhrzeit();
-        LocalDateTime ende = detection.getEndeUhrzeit();
+        Instant start = detection.getStartUhrzeit();
+        Instant ende = detection.getEndeUhrzeit();
 
         List<DetectionDTO> zeroDetectionsToAdd = new ArrayList<>();
 

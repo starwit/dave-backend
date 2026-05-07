@@ -1,7 +1,7 @@
 package de.muenchen.dave.domain.dtos.external;
 
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.Data;
 
@@ -12,10 +12,10 @@ public class DetectionDTO {
     UUID zaehlungId;
 
     @NotNull
-    LocalDateTime startUhrzeit;
+    Instant startUhrzeit;
 
     @NotNull
-    LocalDateTime endeUhrzeit;
+    Instant endeUhrzeit;
 
     Integer pkw;
 
