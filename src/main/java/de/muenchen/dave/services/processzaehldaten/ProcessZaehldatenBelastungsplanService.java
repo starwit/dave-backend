@@ -905,7 +905,7 @@ public class ProcessZaehldatenBelastungsplanService {
                             tupelTageswertZaehldatum.getLadeZaehldatum().getFahrradfahrer(),
                             0));
 
-            if (!tupelTageswertZaehldatum.getIsTageswert()) {
+            if (!tupelTageswertZaehldatum.getIsTageswert() || zaehlung.getDauerzaehlung()) {
                 belastungsplanDataFuss.getValues()[index1][index2] = BigDecimal.valueOf(
                         ObjectUtils.defaultIfNull(
                                 tupelTageswertZaehldatum.getLadeZaehldatum().getFussgaenger(),
