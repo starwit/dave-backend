@@ -161,7 +161,13 @@ public class LadeZaehldatenService {
             ladeZaehldatumTageswert.setFahrradfahrer(
                     ObjectUtils.defaultIfNull(
                             zeitintervall.getHochrechnung().getHochrechnungRad(),
+                            zeitintervall.getFahrradfahrer()));
+
+            ladeZaehldatumTageswert.setFussgaenger(
+                    ObjectUtils.defaultIfNull(
+                            zeitintervall.getFussgaenger(),
                             0));
+
             ladeZaehldatumTageswert.setType(TAGESWERT);
             ladeZaehldatum = ladeZaehldatumTageswert;
         } else {

@@ -22,10 +22,6 @@ DAVe besteht aus folgenden Repositories:
 Besonders ist die Aufteilung der Daten. Alle Daten, die relevant für die Suche sind (Stammdaten), werden in Elasticsearch gespeichert. Die Bewegungsdaten - im Fall von DAVe die Zähldaten - werden in einer relationalen Datenbank (bei der LHM: Oracle) vorgehalten. Um die Ladegeschwindigkeit zu erhöhen, werden bereits beim Speichern der Zähldaten diverse Berechnungen durchgeführt und die vorberechneten Ergebnisse zum direkten Abruf in der Datenbank hinterlegt. Hier kommt auch eine KI-Komponente zum Einsatz, die die Hochrechnung von Kurzzeitzählungen auf den ganzen Tag übernimmt (bisher nur bei Radzählungen).
 Die Frontends sind jeweils Vue Single Page Applications, die über ein Service Gateway mit dem Backend kommunizieren. DAVe besteht nur aus einem einzigen Spring Service.
 
-
-## Built with
-    Java 21, Spring Boot 3.3, ElasticSearch 8.15
-
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
@@ -44,11 +40,16 @@ If you have a suggestion that would make this better, please open an issue with 
 We use the [itm-java-codeformat](https://github.com/it-at-m/itm-java-codeformat) project to apply code formatting conventions.
 To add those conventions to your favorite IDE, please have a look at the [README of itm-java-codeformat](https://github.com/it-at-m/itm-java-codeformat#verwendung).
 
+
+## Developer Documentation
+This section describes, how to checkout and develop DAVe Backend.
+
 ### BuildAndRun
 Local requirements:
 - Java: min Java 21
 - ElasticSearch: v8.15
 - Maven 3.9.7
+- Docker is recommended
 
 1. Clone the Project from GitHub
 2. Configure your ElasticSearch in application-local.yml
@@ -70,9 +71,11 @@ app:
 
 An according profile named "elastic is prepared" and you can run `sh ./runLocalNoSecurityElastic.sh` in order to use it.
 
+### Import Sample Data
+When running with PostgreSQL you can find a batch of sample data in folder [sample-data](src/test/resources/sample-data/) in test subproject. Import these to your local database if you don't have any other data sample.
+
 ## License
-
 Distributed under the MIT License. See LICENSE for more information.
-## Contact
 
+## Contact
 it@m - opensource@muenchen.de
