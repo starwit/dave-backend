@@ -586,8 +586,16 @@ public class LadeZaehldatenService {
     public DrilldownDTO loadCountDataWithDirection(UUID zaehlungId, OptionsDTO options) {
         
         var time = options.getZeitraum();
-        LocalDateTime startUhrzeit = time.get(0).atTime(0, 0, 0);
-        LocalDateTime endeUhrzeit = time.get(1).atTime(23, 59, 59);
+        LocalDateTime startUhrzeit;
+        LocalDateTime endeUhrzeit;
+
+        if (options.getZeitauswahl().equals(TAGESWERT)) {
+            startUhrzeit = time.get(0).atTime(0, 0, 0);
+            endeUhrzeit = time.get(0).atTime(23, 59, 59);
+        } else {
+            startUhrzeit = time.get(0).atTime(0, 0, 0);
+            endeUhrzeit = time.get(1).atTime(23, 59, 59);
+        }
 
         FahrbewegungKreisverkehr fahrbewegungKreisverkehr = createFahrbewegungKreisverkehr(options.getVonKnotenarm(), options.getNachKnotenarm(), false);
         List<Zeitintervall> zeitIntervalle = zeitintervallRepository
