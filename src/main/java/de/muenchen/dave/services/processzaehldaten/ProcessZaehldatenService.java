@@ -7,6 +7,7 @@ import de.muenchen.dave.domain.dtos.laden.LadeProcessedZaehldatenDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatenHeatmapDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatenTableDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatenZeitreiheDTO;
+import de.muenchen.dave.domain.dtos.laden.drilldown.DrilldownDTO;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.exceptions.DataNotFoundException;
 import de.muenchen.dave.services.ladezaehldaten.LadeZaehldatenService;
@@ -104,5 +105,9 @@ public class ProcessZaehldatenService {
         return ladeZaehldatenService.ladeZaehldaten(
                 UUID.fromString(zaehlung.getId()),
                 ZaehldatenProcessingUtil.createHardcodedOptions(zaehlung));
+    }
+
+    public DrilldownDTO loadCountDataWithDirection(String zaehlungId, OptionsDTO options) {
+        return ladeZaehldatenService.loadCountDataWithDirection(UUID.fromString(zaehlungId), options);
     }
 }

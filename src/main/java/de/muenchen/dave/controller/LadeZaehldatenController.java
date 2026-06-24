@@ -2,6 +2,7 @@ package de.muenchen.dave.controller;
 
 import de.muenchen.dave.domain.dtos.OptionsDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeProcessedZaehldatenDTO;
+import de.muenchen.dave.domain.dtos.laden.drilldown.DrilldownDTO;
 import de.muenchen.dave.exceptions.DataNotFoundException;
 import de.muenchen.dave.services.processzaehldaten.ProcessZaehldatenService;
 import jakarta.validation.Valid;
@@ -57,5 +58,12 @@ public class LadeZaehldatenController {
         } catch (final DataNotFoundException exception) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage());
         }
+    }
+
+    @PostMapping("/load-count-with-direction")
+    public ResponseEntity<DrilldownDTO> loadCountWithDirection(@RequestParam(value = REQUEST_PARAMETER_ZAEHLUNG_ID) @NotEmpty final String zaehlungId,
+            @Valid @RequestBody @NotNull final OptionsDTO options) {
+        var result = processZaehldatenService.loadCountDataWithDirection(zaehlungId, options);
+        return ResponseEntity.ok(result);
     }
 }

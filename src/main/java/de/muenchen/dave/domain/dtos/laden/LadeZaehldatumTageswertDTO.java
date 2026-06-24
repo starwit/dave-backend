@@ -14,7 +14,6 @@ import lombok.Data;
                 "lastzuege",
                 "busse",
                 "kraftraeder",
-                "fussgaenger",
                 "pkwEinheiten"
         }
 )
