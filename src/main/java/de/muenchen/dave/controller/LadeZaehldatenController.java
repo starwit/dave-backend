@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -64,7 +63,7 @@ public class LadeZaehldatenController {
     @PostMapping("/load-count-with-direction")
     public ResponseEntity<DrilldownDTO> loadCountWithDirection(@RequestParam(value = REQUEST_PARAMETER_ZAEHLUNG_ID) @NotEmpty final String zaehlungId,
             @Valid @RequestBody @NotNull final OptionsDTO options) {
-                var result = processZaehldatenService.loadCountDataWithDirection(zaehlungId, options);
-                return ResponseEntity.ok(result);
-            }
+        var result = processZaehldatenService.loadCountDataWithDirection(zaehlungId, options);
+        return ResponseEntity.ok(result);
+    }
 }

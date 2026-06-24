@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -523,10 +522,9 @@ public class LadeZaehldatenService {
                         .contains(Zaehldauer.valueOf(zaehldauer)));
 
         zi = zi.stream()
-                .filter(zeitintervall -> types.contains(zeitintervall.getType()) 
-                    && zeitintervall.getFahrbeziehung().getVon() == von
-                    && zeitintervall.getFahrbeziehung().getNach() == nach
-                )
+                .filter(zeitintervall -> types.contains(zeitintervall.getType())
+                        && zeitintervall.getFahrbeziehung().getVon() == von
+                        && zeitintervall.getFahrbeziehung().getNach() == nach)
                 .collect(Collectors.toList());
 
         return zi;
@@ -578,13 +576,13 @@ public class LadeZaehldatenService {
     /**
      * This method creates a pivot table for a given time segment in which all
      * traffic per vehicle type and intersection leg are listed.
-     * 
+     *
      * @param zaehlungId
      * @param options
      * @return
      */
     public DrilldownDTO loadCountDataWithDirection(UUID zaehlungId, OptionsDTO options) {
-        
+
         var time = options.getZeitraum();
         LocalDateTime startUhrzeit;
         LocalDateTime endeUhrzeit;
@@ -599,27 +597,26 @@ public class LadeZaehldatenService {
 
         FahrbewegungKreisverkehr fahrbewegungKreisverkehr = createFahrbewegungKreisverkehr(options.getVonKnotenarm(), options.getNachKnotenarm(), false);
         List<Zeitintervall> zeitIntervalle = zeitintervallRepository
-            .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndFahrbeziehungFahrbewegungKreisverkehrOrderBySortingIndexAsc(
-                    zaehlungId,
-                    startUhrzeit,
-                    endeUhrzeit,
-                    fahrbewegungKreisverkehr);
+                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndFahrbeziehungFahrbewegungKreisverkehrOrderBySortingIndexAsc(
+                        zaehlungId,
+                        startUhrzeit,
+                        endeUhrzeit,
+                        fahrbewegungKreisverkehr);
 
         // 1. Collect ordered movement keys
         LinkedHashSet<FahrbeziehungKey> keySet = zeitIntervalle.stream()
-            .map(zi -> new FahrbeziehungKey(
-                zi.getFahrbeziehung().getVon(),
-                zi.getFahrbeziehung().getNach()))
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+                .map(zi -> new FahrbeziehungKey(
+                        zi.getFahrbeziehung().getVon(),
+                        zi.getFahrbeziehung().getNach()))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         List<FahrbeziehungKey> orderedKeys = new ArrayList<>(keySet);
 
         // 2. Group by time interval, preserving repository sort order
         LinkedHashMap<String, List<Zeitintervall>> byInterval = zeitIntervalle.stream()
-            .collect(Collectors.groupingBy(
-                zi -> zi.getStartUhrzeit() + "|" + zi.getEndeUhrzeit(),
-                LinkedHashMap::new,
-                Collectors.toList()
-            ));
+                .collect(Collectors.groupingBy(
+                        zi -> zi.getStartUhrzeit() + "|" + zi.getEndeUhrzeit(),
+                        LinkedHashMap::new,
+                        Collectors.toList()));
 
         // 3. Accumulator for column totals
         Map<FahrbeziehungKey, int[]> sumAccum = new LinkedHashMap<>();
@@ -634,21 +631,27 @@ public class LadeZaehldatenService {
 
             for (Zeitintervall zi : entry.getValue()) {
                 FahrbeziehungKey key = new FahrbeziehungKey(
-                    zi.getFahrbeziehung().getVon(),
-                    zi.getFahrbeziehung().getNach()
-                );
+                        zi.getFahrbeziehung().getVon(),
+                        zi.getFahrbeziehung().getNach());
                 FahrbeziehungWerte w = new FahrbeziehungWerte(
-                    zi.getPkw(), zi.getLkw(), zi.getLastzuege(), zi.getBusse(),
-                    zi.getKraftraeder(), zi.getFahrradfahrer(), zi.getFussgaenger()
-                );
+                        zi.getPkw() != null ? zi.getPkw() : 0,
+                        zi.getLkw() != null ? zi.getLkw() : 0,
+                        zi.getLastzuege() != null ? zi.getLastzuege() : 0,
+                        zi.getBusse() != null ? zi.getBusse() : 0,
+                        zi.getKraftraeder() != null ? zi.getKraftraeder() : 0,
+                        zi.getFahrradfahrer() != null ? zi.getFahrradfahrer() : 0,
+                        zi.getFussgaenger() != null ? zi.getFussgaenger() : 0);
                 werte.put(key, w);
 
                 // Accumulate column totals
                 int[] acc = sumAccum.get(key);
-                acc[0] += zi.getPkw();         acc[1] += zi.getLkw();
-                acc[2] += zi.getLastzuege();   acc[3] += zi.getBusse();
-                acc[4] += zi.getKraftraeder(); acc[5] += zi.getFahrradfahrer();
-                acc[6] += zi.getFussgaenger(); 
+                acc[0] += zi.getPkw() != null ? zi.getPkw() : 0;
+                acc[1] += zi.getLkw() != null ? zi.getLkw() : 0;
+                acc[2] += zi.getLastzuege() != null ? zi.getLastzuege() : 0;
+                acc[3] += zi.getBusse() != null ? zi.getBusse() : 0;
+                acc[4] += zi.getKraftraeder() != null ? zi.getKraftraeder() : 0;
+                acc[5] += zi.getFahrradfahrer() != null ? zi.getFahrradfahrer() : 0;
+                acc[6] += zi.getFussgaenger() != null ? zi.getFussgaenger() : 0;
             }
 
             orderedKeys.forEach(k -> werte.putIfAbsent(k, emptyWerte()));
@@ -658,8 +661,7 @@ public class LadeZaehldatenService {
         // 5. Convert accumulators to FahrbeziehungWerte
         Map<FahrbeziehungKey, FahrbeziehungWerte> spaltensummen = new LinkedHashMap<>();
         sumAccum.forEach((k, acc) -> spaltensummen.put(k,
-            new FahrbeziehungWerte(acc[0], acc[1], acc[2], acc[3], acc[4], acc[5], acc[6])
-        ));
+                new FahrbeziehungWerte(acc[0], acc[1], acc[2], acc[3], acc[4], acc[5], acc[6])));
 
         return new DrilldownDTO(orderedKeys, rows, spaltensummen);
 
