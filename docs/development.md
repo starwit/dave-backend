@@ -1,4 +1,41 @@
-# Development hints
+# Developer Documentation
+This section describes, how to checkout and develop DAVe Backend.
+
+## Build And Run
+Local requirements:
+- Java: min Java 25
+- Maven 3.9.7
+- Docker is recommended
+
+1. Clone the Project from GitHub
+2. Configure your ElasticSearch in application-local.yml
+3. Build the Project with ```mvn clean install```
+4. If you start it for the first time then change ```ddl-auto``` to ```create```
+5. Run the Project with one of the scripts ```runLocal``` or ```runLocalNoSecurity```
+
+**OR** you can go straight to the [dave-frontend](https://github.com/it-at-m/dave-frontend/) and try out our [test stack](https://github.com/it-at-m/dave-frontend/tree/opensource/docker-compose2/stack) based on docker-compose.  
+
+## Running with or without elastic
+
+The default way to run the application is without elastic. To run it with elastic, you have to set in application.yml
+
+```
+app:
+  scan:
+    packages: org.springframework.data.jpa.convert.threeten, de.muenchen.dave, de.muenchen.elasticimpl
+```
+
+An according profile named "elastic is prepared" and you can run `sh ./runLocalNoSecurityElastic.sh` in order to use it.
+
+## Coding Conventions
+
+We use the [itm-java-codeformat](https://github.com/it-at-m/itm-java-codeformat) project to apply code formatting conventions.
+To add those conventions to your favorite IDE, please have a look at the [README of itm-java-codeformat](https://github.com/it-at-m/itm-java-codeformat#verwendung).
+
+# Database Hints
+
+## Import Sample Data
+When running with PostgreSQL you can find a batch of sample data in folder [sample-data](src/test/resources/sample-data/) in test subproject. Import these to your local database if you don't have any other data sample.
 
 ## SQL Statements
 

@@ -1,81 +1,30 @@
 # Backend (Datenportal):
+Urban mobility planning depends on reliable traffic data and intuitive analysis tools. DAVe (Database and Evaluation of Traffic Counts / Datenbank und Auswertung für Verkehrszählungen) is an open-source platform to manage, evaluate, and visualize traffic data. 
+The software enables municipalities, transport planners, and mobility departments to analyze traffic flows, monitor long-term developments, and support data-driven infrastructure planning.
+
+DAVe was started and opensourced by the Mobility Department of the City of Munich. This is Starwit's distribution, which is focused on easy operations.
 
 ## About the project
+This repository is one of the 5 components of the 'DAVe' application Not all five components necessarily have to be used at the same time. However, this repository forms DAVe's backend and is a prerequisite for every other parts.
 
-Dieses Repository ist eine der 5 Komponenten der Anwendung "DAVe" (Datenbank und Auswertung für Verkehrszählungen).
+| Component        | Repository / URI                                           | Description                  |
+| -----------------| -----------------------------------------------------------| -----------------------------|
+| DAVe Backend     | https://github.com/starwit/dave-backend                    | Data Storage & Business Logic|
+| DAVe Frontend    | https://github.com/starwit/dave-frontend                   | Analytics Frontend           |
+| DAVe Admin Portal | https://github.com/starwit/dave-admin-portal              | Administration Frontend      |
+| DAVe Self Service Portal | https://github.com/starwit/dave-selfservice-portal | Self-Service for data upload |
+| DAVe Adapter     | https://github.com/starwit/dave-adapter                    | Connects to data platforms and/or sensors   |
 
-Es müssen nicht zwingend alle 5 Komponenten gleichzeitig verwendet werden. Allerdings bildet dieses Repository den Kern der Anwendung und ist Voraussetzung für alle anderen Bestandteile.
-
-DAVe besteht aus folgenden Repositories:
-
-* **Backend (Datenportal)**: Beinhaltet die Business Logik für Frontend, Adminportal, Selfserviceportal und EAI. Bildet den Kern der Anwendung.
-* **Frontend (Datenportal)**: Das Datenportal bietet einen lesenden Zugriff auf die Zählungen. Es kann nach Zählungen gesucht werden (auch auf einer Karte). Hat ein Nutzer eine Zählung, bzw. eine Zählstelle gefunden, so kann in dieser eine umfangreiche Datenanalyse betrieben werden. [Repository](https://github.com/it-at-m/dave-frontend)
-* **Adminportal**: Das Adminportal ist den Administratoren der Anwendung vorbehalten. Hier ist der komplette Workflow um eine Zählstelle, oder eine Zählung anzulegen abgebildet. Auch die Kommunikation mit dem Zähldienstleister wird über dieses Portal abgewickelt. [Repository](https://github.com/it-at-m/dave-admin-portal)
-* **Selfserviceportal**: Das Selfserviceportal ist dem Zähldienstleister vorbehalten. Dort sieht der Dienstleister Aufträge für neue Zählungen, kann Metadaten zu einer Zählung pflegen und die Zähldaten hochladen. Das Selfserviceportal kann auch mit mehreren verschiedene Zähldienstleister betrieben werden. [Repository](https://github.com/it-at-m/dave-selfservice-portal)
-* **EAI**: Um Schnittstellen zu anderen Systemen innerhalb der LHM zur Verfügung zu stellen, gibt es die Möglichkeit direkt Daten als CSV-Datei zu bekommen. Folgende Funktionen werden angeboten:
-	* Ausgabe aller Zählstellen mit Koordinaten als CSV-Datei
-	* Ausgabe der Spitzenstunde einer bestimmten Zählung als CSV-Datei
-	* Daten aller Zählstellen und Zählungen des angegebenen Monats werden im JSON-Format zurückgegeben
-
-[EAI-Repository](https://github.com/it-at-m/dave-eai)
-
-Besonders ist die Aufteilung der Daten. Alle Daten, die relevant für die Suche sind (Stammdaten), werden in Elasticsearch gespeichert. Die Bewegungsdaten - im Fall von DAVe die Zähldaten - werden in einer relationalen Datenbank (bei der LHM: Oracle) vorgehalten. Um die Ladegeschwindigkeit zu erhöhen, werden bereits beim Speichern der Zähldaten diverse Berechnungen durchgeführt und die vorberechneten Ergebnisse zum direkten Abruf in der Datenbank hinterlegt. Hier kommt auch eine KI-Komponente zum Einsatz, die die Hochrechnung von Kurzzeitzählungen auf den ganzen Tag übernimmt (bisher nur bei Radzählungen).
-Die Frontends sind jeweils Vue Single Page Applications, die über ein Service Gateway mit dem Backend kommunizieren. DAVe besteht nur aus einem einzigen Spring Service.
+DAVe backend is a Spring Boot application that receives traffic data and stores them in a PostgreSQL database. It also offers an API that provides various analysis and prepared data conversions. This is the basis for frontend apps to visualize data. DAVe backend also supports business processes to manage counting tasks executed by service providers.
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
-
-If you have a suggestion that would make this better, please open an issue with the tag "enhancement", fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement". Don't forget to give the project a star! Thanks again!
-
-    Open an issue with the tag "enhancement"
-    Fork the Project
-    Create your Feature Branch (git checkout -b feature/AmazingFeature)
-    Commit your Changes (git commit -m 'Add some AmazingFeature')
-    Push to the Branch (git push origin feature/AmazingFeature)
-    Open a Pull Request
-
-### Coding Conventions
-
-We use the [itm-java-codeformat](https://github.com/it-at-m/itm-java-codeformat) project to apply code formatting conventions.
-To add those conventions to your favorite IDE, please have a look at the [README of itm-java-codeformat](https://github.com/it-at-m/itm-java-codeformat#verwendung).
-
-
-## Developer Documentation
-This section describes, how to checkout and develop DAVe Backend.
-
-### BuildAndRun
-Local requirements:
-- Java: min Java 21
-- ElasticSearch: v8.15
-- Maven 3.9.7
-- Docker is recommended
-
-1. Clone the Project from GitHub
-2. Configure your ElasticSearch in application-local.yml
-3. Build the Project with ```mvn clean install```
-4. If you start it for the first time then change ```ddl-auto``` to ```create```
-5. Run the Project with one of the scripts ```runLocal``` or ```runLocalNoSecurity```
-
-**OR** you can go straight to the [dave-frontend](https://github.com/it-at-m/dave-frontend/) and try out our [test stack](https://github.com/it-at-m/dave-frontend/tree/opensource/docker-compose2/stack) based on docker-compose.  
-
-## Running with or without elastic
-
-The default way to run the application is without elastic. To run it with elastic, you have to set in application.yml
-
-```
-app:
-  scan:
-    packages: org.springframework.data.jpa.convert.threeten, de.muenchen.dave, de.muenchen.elasticimpl
-```
-
-An according profile named "elastic is prepared" and you can run `sh ./runLocalNoSecurityElastic.sh` in order to use it.
-
-### Import Sample Data
-When running with PostgreSQL you can find a batch of sample data in folder [sample-data](src/test/resources/sample-data/) in test subproject. Import these to your local database if you don't have any other data sample.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated! This edition of DAVe is published under the AGPLv3 license. See section [license](#license) for more details. All contributions will also be published under this license.
 
 ## License
-Distributed under the MIT License. See LICENSE for more information.
+Everything in this repo is licensed under AGPL 3 and the license can be found [here](LICENSE).
 
 ## Contact
-it@m - opensource@muenchen.de
+For Munich's edition it@m - opensource@muenchen.de
+
+For Starwit's edition contact info@starwit.de
