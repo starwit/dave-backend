@@ -104,6 +104,11 @@ dave:
     cron: 0 0 2 1/1 * ?
     # Sollte immer knapp unter dem Cron sein
     shedlock: 1380m
+  publicholidays:
+    # Every month on day 1 at 03:00
+    cron: 0 0 3 1 * ?
+    # Should always be just below the cron interval
+    shedlock: 1380m
   onnx:
     model-path: model/Rad_Modell_DAVE.onnx
   zaehlstelle:

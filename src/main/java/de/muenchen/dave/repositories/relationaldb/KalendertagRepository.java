@@ -12,6 +12,8 @@ public interface KalendertagRepository extends JpaRepository<Kalendertag, UUID> 
 
     Optional<Kalendertag> findByDatum(final LocalDate datum);
 
+    List<Kalendertag> findAllByDatumIn(final List<LocalDate> daten);
+
     /**
      * Liefert eine Liste an Kalendertagen bis zum latestDate, ohne die excludedDates.
      *
@@ -25,4 +27,13 @@ public interface KalendertagRepository extends JpaRepository<Kalendertag, UUID> 
             final List<TagesTyp> tagestypen);
 
     Optional<Kalendertag> findByNextStartDateToLoadUnauffaelligeTageIsTrue();
+
+    /**
+     * Checks whether calendar day entries exist for a given date range.
+     *
+     * @param startDate start date (inclusive)
+     * @param endDate end date (inclusive)
+     * @return true if at least one entry exists, otherwise false
+     */
+    boolean existsByDatumBetween(final LocalDate startDate, final LocalDate endDate);
 }
