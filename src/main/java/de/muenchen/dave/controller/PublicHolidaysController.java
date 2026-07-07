@@ -27,7 +27,7 @@ public class PublicHolidaysController {
     @PostMapping(value = "/import")
     public ResponseEntity<Integer> loadPublicHolidaysForYear() {
         try {
-            int result = publicHolidaysImportService.importForCurrentAndNextYear();
+            int result = publicHolidaysImportService.importForCurrentAndNextYear(true);
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid configuration: " + e.getMessage());

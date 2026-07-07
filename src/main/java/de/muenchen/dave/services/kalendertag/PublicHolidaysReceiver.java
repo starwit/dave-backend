@@ -24,7 +24,7 @@ public class PublicHolidaysReceiver {
     @LogExecutionTime
     public void checkPublicHolidaysOnStartup() {
         log.info("#checkPublicHolidaysOnStartup");
-        publicHolidaysImportService.importForCurrentAndNextYear();
+        publicHolidaysImportService.importForCurrentAndNextYear(false);
     }
 
     /**
@@ -40,6 +40,6 @@ public class PublicHolidaysReceiver {
     @LogExecutionTime
     public void loadPublicHolidaysCron() {
         log.info("#loadPublicHolidaysCron");
-        publicHolidaysImportService.importForCurrentAndNextYear();
+        publicHolidaysImportService.importForCurrentAndNextYear(false);
     }
 }

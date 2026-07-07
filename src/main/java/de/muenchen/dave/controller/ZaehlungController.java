@@ -119,7 +119,7 @@ public class ZaehlungController {
     public ResponseEntity<List<ExternalZaehlungDTO>> getZaehlungenForExternal() {
         log.debug("Lade Zaehlungen für Dienstleister");
         try {
-            return ResponseEntity.ok(this.externalZaehlungPersistierungsService.getZaehlungenForExternal(SecurityContextInformationExtractor.getUserName(),
+            return ResponseEntity.ok(this.externalZaehlungPersistierungsService.getZaehlungenForExternal("starwit",
                     SecurityContextInformationExtractor.isFachadmin()));
         } catch (final BrokenInfrastructureException bie) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);

@@ -37,14 +37,17 @@ public class PublicHolidaysImportService {
     private final OpenHolidaysApiClient openHolidaysApiClient;
 
     @Transactional
-    public int loadAndSavePublicHolidaysForYear(final int year) {
+    public int loadAndSavePublicHolidaysForYear(final int year, boolean override) {
         final LocalDate validFrom = LocalDate.of(year, Month.JANUARY, 1);
         final LocalDate validTo = LocalDate.of(year, Month.DECEMBER, 31);
 
         final boolean dataExistsForYear = kalendertagRepository.existsByDatumBetween(validFrom, validTo);
-        if (dataExistsForYear) {
+        if (dataExistsForYear && !override) {
             log.info("Public holidays for year {} already exist, skipping import", year);
             return 0;
+        } else if (dataExistsForYear) {
+            log.info("Public holidays for year {} already exist, overriding existing data", year);
+            kalendertagRepository.deleteAllByDatumBetween(validFrom, validTo);
         }
 
         final URI sourceUri = buildSourceUri(validFrom, validTo);
@@ -84,12 +87,12 @@ public class PublicHolidaysImportService {
         return kalendertageToSave.size();
     }
 
-    public int importForCurrentAndNextYear() {
+    public int importForCurrentAndNextYear(boolean override) {
         final int currentYear = LocalDate.now().getYear();
         int totalImported = 0;
         for (int year = currentYear; year <= currentYear + 1; year++) {
             try {
-                totalImported += loadAndSavePublicHolidaysForYear(year);
+                totalImported += loadAndSavePublicHolidaysForYear(year, override);
             } catch (final Exception exception) {
                 log.error("Error while loading public holidays for year {}", year, exception);
             }

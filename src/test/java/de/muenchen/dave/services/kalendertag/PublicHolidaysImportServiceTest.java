@@ -61,7 +61,7 @@ class PublicHolidaysImportServiceTest {
             return invocation.getArgument(0);
         }).when(kalendertagRepository).saveAll(any());
 
-        final int result = publicHolidaysImportService.loadAndSavePublicHolidaysForYear(2026);
+        final int result = publicHolidaysImportService.loadAndSavePublicHolidaysForYear(2026, true);
 
         assertThat(result).isEqualTo(2);
 
@@ -89,7 +89,7 @@ class PublicHolidaysImportServiceTest {
         when(configurationRepository.findByKeyname(PublicHolidaysImportService.CONFIG_KEY_PUBLIC_HOLIDAYS_URL)).thenReturn(config);
         when(openHolidaysApiClient.loadPublicHolidays(any())).thenReturn(List.of());
 
-        publicHolidaysImportService.loadAndSavePublicHolidaysForYear(2026);
+        publicHolidaysImportService.loadAndSavePublicHolidaysForYear(2026, true);
 
         final ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
         verify(openHolidaysApiClient, times(1)).loadPublicHolidays(uriCaptor.capture());
