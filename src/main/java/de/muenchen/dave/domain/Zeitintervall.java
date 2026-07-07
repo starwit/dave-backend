@@ -106,7 +106,8 @@ import org.hibernate.type.SqlTypes;
                 "\tsum(hochrechnungrad) as hochrechnungrad,\n" + //
                 "\tstartuhrzeit, \n" + //
                 "\tendeuhrzeit\n" + //
-                "where startuhrzeit between :start and :ende and (EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) or EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG')) \n" +
+                "where startuhrzeit between :start and :ende and (EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) or EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG')) \n"
+                +
                 "\tgroup by startuhrzeit::time, endeuhrzeit::time, zaehlung_id order by startUhrzeit ASC",
         resultSetMapping = "Mapping.Zeitintervall"
 )
