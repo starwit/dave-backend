@@ -28,7 +28,7 @@ public class PublicHolidaysImportService {
 
     public static final String CONFIG_KEY_PUBLIC_HOLIDAYS_URL = "publicHolidaysApiUrl";
 
-    static final String DEFAULT_PUBLIC_HOLIDAYS_URL = "https://openholidaysapi.org/PublicHolidays?countryIsoCode=DE&languageIsoCode=DE&subdivisionCode=DE-NI&validFrom={validFrom}&validTo={validTo}";
+    static final String DEFAULT_PUBLIC_HOLIDAYS_URL = "https://openholidaysapi.org/PublicHolidays?countryIsoCode=DE&languageIsoCode=DE&subdivisionCode=DE&validFrom={validFrom}&validTo={validTo}";
 
     private final ConfigurationRepository configurationRepository;
 

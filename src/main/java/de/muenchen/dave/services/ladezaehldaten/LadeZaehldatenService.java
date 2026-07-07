@@ -413,13 +413,33 @@ public class LadeZaehldatenService {
             break;
         }
 
-        List<Zeitintervall> zi = zeitintervallRepository.findWeekdayAverageByZaehlungIdOrderBySortingIndexAsc(
-                zaehlungId.toString(),
-                start,
-                end,
-                vonKnotenarm,
-                nachKnotenarm,
-                tagesTypNumbers);
+        List<Zeitintervall> zi = null;
+        if (tagesTyp == TagesTyp.SONNTAG_FEIERTAG) {
+            zi = zeitintervallRepository.findWeekdayAverageSundayOrPublicHolidays(
+                    zaehlungId.toString(),
+                    start,
+                    end,
+                    vonKnotenarm,
+                    nachKnotenarm,
+                    tagesTypNumbers);
+        } else if (tagesTyp == TagesTyp.WERKTAG_DI_MI_DO || tagesTyp == TagesTyp.WERKTAG_MO_FR) {
+            zi = zeitintervallRepository.findWeekdayAverageWithoutPublicHolidays(
+                    zaehlungId.toString(),
+                    start,
+                    end,
+                    vonKnotenarm,
+                    nachKnotenarm,
+                    tagesTypNumbers);
+        } else {
+            zi = zeitintervallRepository.findWeekdayAverage(
+                    zaehlungId.toString(),
+                    start,
+                    end,
+                    vonKnotenarm,
+                    nachKnotenarm,
+                    tagesTypNumbers);
+        }
+
         log.debug("Size of extracted Zeitintervalle for Wochentagsdurchschnitt: {}", zi.size());
         List<Zeitintervall> allZeitintervalle = zeitintervallPersistierungsService.aufbereitenUndPersistieren(zi, false);
         return allZeitintervalle;
