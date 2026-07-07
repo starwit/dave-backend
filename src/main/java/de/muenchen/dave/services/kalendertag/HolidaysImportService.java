@@ -1,7 +1,7 @@
 package de.muenchen.dave.services.kalendertag;
 
 import de.muenchen.dave.domain.Kalendertag;
-import de.muenchen.dave.domain.dtos.PublicHolidaysDTO;
+import de.muenchen.dave.domain.dtos.HolidaysDTO;
 import de.muenchen.dave.domain.enums.TagesTyp;
 import de.muenchen.dave.repositories.relationaldb.ConfigurationRepository;
 import de.muenchen.dave.repositories.relationaldb.KalendertagRepository;
@@ -24,11 +24,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PublicHolidaysImportService {
+public class HolidaysImportService {
 
-    public static final String CONFIG_KEY_PUBLIC_HOLIDAYS_URL = "publicHolidaysApiUrl";
-
-    static final String DEFAULT_PUBLIC_HOLIDAYS_URL = "https://openholidaysapi.org/PublicHolidays?countryIsoCode=DE&languageIsoCode=DE&subdivisionCode=DE&validFrom={validFrom}&validTo={validTo}";
+    public static final HashMap<TagesTyp, String> CONFIG_VALUES = new HashMap<>() {
+        {
+            put(TagesTyp.SONNTAG_FEIERTAG, "publicHolidaysApiUrl");
+            put(TagesTyp.FERIEN, "schoolHolidaysApiUrl");
+        }
+    };
 
     private final ConfigurationRepository configurationRepository;
 
@@ -37,21 +40,27 @@ public class PublicHolidaysImportService {
     private final OpenHolidaysApiClient openHolidaysApiClient;
 
     @Transactional
-    public int loadAndSavePublicHolidaysForYear(final int year, boolean override) {
+    public int loadAndSaveHolidaysForYear(final TagesTyp tagesTyp, final int year, boolean override) {
         final LocalDate validFrom = LocalDate.of(year, Month.JANUARY, 1);
         final LocalDate validTo = LocalDate.of(year, Month.DECEMBER, 31);
 
-        final boolean dataExistsForYear = kalendertagRepository.existsByDatumBetween(validFrom, validTo);
+        final boolean dataExistsForYear = kalendertagRepository.existsByDatumBetweenAndTagestyp(validFrom, validTo, tagesTyp);
         if (dataExistsForYear && !override) {
-            log.info("Public holidays for year {} already exist, skipping import", year);
+            log.info("{} for year {} already exist, skipping import", tagesTyp.getBeschreibung(), year);
             return 0;
         } else if (dataExistsForYear) {
-            log.info("Public holidays for year {} already exist, overriding existing data", year);
-            kalendertagRepository.deleteAllByDatumBetween(validFrom, validTo);
+            log.info("{} for year {} already exist, overriding existing data", tagesTyp.getBeschreibung(), year);
+            kalendertagRepository.deleteAllByDatumBetweenAndTagestyp(validFrom, validTo, tagesTyp);
         }
 
-        final URI sourceUri = buildSourceUri(validFrom, validTo);
-        final List<PublicHolidaysDTO> holidays = openHolidaysApiClient.loadPublicHolidays(sourceUri);
+        String sourceUriConfig = CONFIG_VALUES.get(tagesTyp);
+        final URI sourceUri = buildSourceUri(validFrom, validTo, sourceUriConfig);
+        if (sourceUri == null) {
+            log.info("No source URL configured for {}. Import skipped.", sourceUriConfig);
+            return 0;
+        }
+
+        final List<HolidaysDTO> holidays = openHolidaysApiClient.loadHolidays(sourceUri);
 
         final List<LocalDate> holidayDates = holidays
                 .stream()
@@ -63,8 +72,13 @@ public class PublicHolidaysImportService {
                 .toList();
 
         if (holidayDates.isEmpty()) {
-            log.info("No public holidays found for year {} via {}", year, sourceUri);
+            log.info("No {} found for year {} via {}", tagesTyp.getBeschreibung(), year, sourceUri);
             return 0;
+        }
+
+        if (override) {
+            log.info("Overriding existing {} entries for year {}", tagesTyp.getBeschreibung(), year);
+            kalendertagRepository.deleteAllByDatumBetweenAndTagestyp(validFrom, validTo, tagesTyp);
         }
 
         final Map<LocalDate, Kalendertag> existingKalendertageByDate = new HashMap<>();
@@ -76,39 +90,44 @@ public class PublicHolidaysImportService {
                 .map(date -> {
                     final Kalendertag kalendertag = existingKalendertageByDate.getOrDefault(date, new Kalendertag());
                     kalendertag.setDatum(date);
-                    kalendertag.setTagestyp(TagesTyp.SONNTAG_FEIERTAG);
+                    kalendertag.setTagestyp(tagesTyp);
                     return kalendertag;
                 })
                 .toList();
 
         kalendertagRepository.saveAll(kalendertageToSave);
-        log.info("Saved {} public holiday entries for year {}", kalendertageToSave.size(), year);
+        log.info("Saved {} {} entries for year {}", kalendertageToSave.size(), tagesTyp.getBeschreibung(), year);
 
         return kalendertageToSave.size();
     }
 
-    public int importForCurrentAndNextYear(boolean override) {
+    @Transactional
+    public int importForCurrentAndNextYear(boolean override, TagesTyp tagesTyp) {
         final int currentYear = LocalDate.now().getYear();
         int totalImported = 0;
         for (int year = currentYear; year <= currentYear + 1; year++) {
             try {
-                totalImported += loadAndSavePublicHolidaysForYear(year, override);
+                totalImported += loadAndSaveHolidaysForYear(tagesTyp, year, override);
             } catch (final Exception exception) {
-                log.error("Error while loading public holidays for year {}", year, exception);
+                log.error("Error while loading holidays for year {}", year, exception);
             }
         }
         return totalImported;
     }
 
-    private URI buildSourceUri(final LocalDate validFrom, final LocalDate validTo) {
-        final var configuredSourceEntity = configurationRepository.findByKeyname(CONFIG_KEY_PUBLIC_HOLIDAYS_URL);
+    private URI buildSourceUri(final LocalDate validFrom, final LocalDate validTo, final String configKeyName) {
+        final var configuredSourceEntity = configurationRepository.findByKeyname(configKeyName);
         final String configuredSource = configuredSourceEntity == null
                 ? null
                 : configuredSourceEntity.getValuefield();
 
         final String sourceUrl = StringUtils.isBlank(configuredSource)
-                ? DEFAULT_PUBLIC_HOLIDAYS_URL
+                ? null
                 : configuredSource;
+
+        if (StringUtils.isBlank(sourceUrl)) {
+            return null;
+        }
 
         final boolean hasTemplateVariables = sourceUrl.contains("{validFrom}") || sourceUrl.contains("{validTo}");
         if (hasTemplateVariables) {
@@ -131,17 +150,17 @@ public class PublicHolidaysImportService {
         return uriBuilder.build().toUri();
     }
 
-    private Stream<LocalDate> toDates(final PublicHolidaysDTO holiday) {
-        if (holiday.startDate() == null) {
+    private Stream<LocalDate> toDates(final HolidaysDTO holiday) {
+        if (holiday.getStartDate() == null) {
             return Stream.empty();
         }
 
-        final LocalDate endDate = holiday.endDate() == null
-                ? holiday.startDate()
-                : holiday.endDate();
+        final LocalDate endDate = holiday.getEndDate() == null
+                ? holiday.getStartDate()
+                : holiday.getEndDate();
 
         return Stream.iterate(
-                holiday.startDate(),
+                holiday.getStartDate(),
                 date -> !date.isAfter(endDate),
                 date -> date.plusDays(1));
     }

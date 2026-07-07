@@ -1,6 +1,7 @@
 package de.muenchen.dave.services.kalendertag;
 
 import de.muenchen.dave.configuration.LogExecutionTime;
+import de.muenchen.dave.domain.enums.TagesTyp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -15,31 +16,33 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 @Profile({ "!konexternal && !prodexternal && !unittest" })
-public class PublicHolidaysReceiver {
+public class HolidaysReceiver {
 
-    private final PublicHolidaysImportService publicHolidaysImportService;
+    private final HolidaysImportService holidaysImportService;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     @LogExecutionTime
-    public void checkPublicHolidaysOnStartup() {
-        log.info("#checkPublicHolidaysOnStartup");
-        publicHolidaysImportService.importForCurrentAndNextYear(false);
+    public void checkHolidaysOnStartup() {
+        log.info("#checkHolidaysOnStartup");
+        holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.SONNTAG_FEIERTAG);
+        holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.FERIEN);
     }
 
     /**
      * Checks and updates public holidays monthly using the configured holiday source.
      */
-    @Scheduled(cron = "${dave.publicholidays.cron}")
+    @Scheduled(cron = "${dave.holidays.cron}")
     @SchedulerLock(
-            name = "loadPublicHolidaysCron",
-            lockAtMostFor = "${dave.publicholidays.shedlock}",
-            lockAtLeastFor = "${dave.publicholidays.shedlock}"
+            name = "loadHolidaysCron",
+            lockAtMostFor = "${dave.holidays.shedlock}",
+            lockAtLeastFor = "${dave.holidays.shedlock}"
     )
     @Transactional
     @LogExecutionTime
-    public void loadPublicHolidaysCron() {
-        log.info("#loadPublicHolidaysCron");
-        publicHolidaysImportService.importForCurrentAndNextYear(false);
+    public void loadHolidaysCron() {
+        log.info("#loadHolidaysCron");
+        holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.SONNTAG_FEIERTAG);
+        holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.FERIEN);
     }
 }

@@ -104,7 +104,7 @@ dave:
     cron: 0 0 2 1/1 * ?
     # Sollte immer knapp unter dem Cron sein
     shedlock: 1380m
-  publicholidays:
+  holidays:
     # Every month on day 1 at 03:00
     cron: 0 0 3 1 * ?
     # Should always be just below the cron interval

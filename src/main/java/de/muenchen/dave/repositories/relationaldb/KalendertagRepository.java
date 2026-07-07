@@ -37,5 +37,9 @@ public interface KalendertagRepository extends JpaRepository<Kalendertag, UUID> 
      */
     boolean existsByDatumBetween(final LocalDate startDate, final LocalDate endDate);
 
+    boolean existsByDatumBetweenAndTagestyp(final LocalDate startDate, final LocalDate endDate, final TagesTyp tagestyp);
+
     void deleteAllByDatumBetween(final LocalDate startDate, final LocalDate endDate);
+
+    void deleteAllByDatumBetweenAndTagestyp(final LocalDate startDate, final LocalDate endDate, final TagesTyp tagestyp);
 }

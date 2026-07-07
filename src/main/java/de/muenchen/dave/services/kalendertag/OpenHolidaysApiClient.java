@@ -1,6 +1,6 @@
 package de.muenchen.dave.services.kalendertag;
 
-import de.muenchen.dave.domain.dtos.PublicHolidaysDTO;
+import de.muenchen.dave.domain.dtos.HolidaysDTO;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -20,19 +20,19 @@ public class OpenHolidaysApiClient {
 
     private final RestTemplateBuilder restTemplateBuilder;
 
-    public List<PublicHolidaysDTO> loadPublicHolidays(final URI uri) {
+    public List<HolidaysDTO> loadHolidays(final URI uri) {
         final RestTemplate restTemplate = restTemplateBuilder.build();
 
         final HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-        final ResponseEntity<PublicHolidaysDTO[]> response = restTemplate.exchange(
+        final ResponseEntity<HolidaysDTO[]> response = restTemplate.exchange(
                 uri,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                PublicHolidaysDTO[].class);
+                HolidaysDTO[].class);
 
-        final PublicHolidaysDTO[] body = response.getBody();
+        final HolidaysDTO[] body = response.getBody();
         if (body == null) {
             return List.of();
         }
