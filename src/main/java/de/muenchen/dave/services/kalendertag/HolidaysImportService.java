@@ -26,12 +26,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 public class HolidaysImportService {
 
-    public static final HashMap<TagesTyp, String> CONFIG_VALUES = new HashMap<>() {
-        {
-            put(TagesTyp.SONNTAG_FEIERTAG, "publicHolidaysApiUrl");
-            put(TagesTyp.FERIEN, "schoolHolidaysApiUrl");
-        }
-    };
+    public static final Map<TagesTyp, String> CONFIG_VALUES = Map.of(
+            TagesTyp.SONNTAG_FEIERTAG, "publicHolidaysApiUrl",
+            TagesTyp.FERIEN, "schoolHolidaysApiUrl");
 
     private final ConfigurationRepository configurationRepository;
 
