@@ -66,7 +66,7 @@ import org.hibernate.type.SqlTypes;
                 "\tsum(hochrechnungrad) as hochrechnungrad,\n" + //
                 "\tstartuhrzeit, \n" + //
                 "\tendeuhrzeit\n" + //
-                "FROM public.zeitintervall \n" + //
+                "FROM zeitintervall \n" + //
                 "where startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp)\n" + //
                 "\tand zaehlung_id = :zaehlungId \n" + //
                 "\tand fahrbeziehung_von IN (:vonKnotenarm) and fahrbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //
@@ -106,8 +106,8 @@ import org.hibernate.type.SqlTypes;
                 "\tsum(hochrechnungrad) as hochrechnungrad,\n" + //
                 "\tstartuhrzeit, \n" + //
                 "\tendeuhrzeit\n" + //
-                "FROM public.zeitintervall \n" + //
-                "where (startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) or EXISTS(select 1 from public.kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG')) \n"
+                "FROM zeitintervall \n" + //
+                "where (startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) or EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG')) \n"
                 + //
                 "\tand zaehlung_id = :zaehlungId \n" + //
                 "\tand fahrbeziehung_von IN (:vonKnotenarm) and fahrbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //
@@ -147,8 +147,8 @@ import org.hibernate.type.SqlTypes;
                 "\tsum(hochrechnungrad) as hochrechnungrad,\n" + //
                 "\tstartuhrzeit, \n" + //
                 "\tendeuhrzeit\n" + //
-                "FROM public.zeitintervall \n" + //
-                "where (startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) and not EXISTS(select 1 from public.kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG'))\n"
+                "FROM zeitintervall \n" + //
+                "where (startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG'))\n"
                 + //
                 "\tand zaehlung_id = :zaehlungId \n" + //
                 "\tand fahrbeziehung_von IN (:vonKnotenarm) and fahrbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //
