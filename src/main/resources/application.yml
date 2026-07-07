@@ -107,7 +107,7 @@ dave:
   holidays:
     # Every month on day 1 at 03:00
     cron: 0 0 3 1 * ?
-    # Should always be just below the cron interval
+    # Lock duration (must exceed expected job runtime)
     shedlock: 1380m
   onnx:
     model-path: model/Rad_Modell_DAVE.onnx
