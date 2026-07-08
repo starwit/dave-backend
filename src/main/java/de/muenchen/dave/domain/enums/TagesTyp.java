@@ -43,6 +43,12 @@ public enum TagesTyp {
             TagesaggregatRequestDto.TagesTypEnum.SONNTAG_FEIERTAG,
             IntervalDto.TagesTypEnum.SONNTAG_FEIERTAG),
 
+    FERIEN(
+            "Ferien",
+            null,
+            null,
+            null),
+
     WERKTAG_FERIEN(
             "Mo-Fr Ferien",
             MesswertRequestDto.TagesTypEnum.WERKTAG_FERIEN,

@@ -72,7 +72,25 @@ public interface ZeitintervallRepository extends JpaRepository<Zeitintervall, UU
             final FahrbewegungKreisverkehr fahrbewegungKreisverkehr);
 
     @Query(nativeQuery = true)
-    List<Zeitintervall> findWeekdayAverageByZaehlungIdOrderBySortingIndexAsc(
+    List<Zeitintervall> findWeekdayAverage(
+            final String zaehlungId,
+            final LocalDateTime start,
+            final LocalDateTime ende,
+            final List<Integer> vonKnotenarm,
+            final List<Integer> nachKnotenarm,
+            final List<Integer> tagestyp);
+
+    @Query(nativeQuery = true)
+    List<Zeitintervall> findWeekdayAverageWithoutPublicHolidays(
+            final String zaehlungId,
+            final LocalDateTime start,
+            final LocalDateTime ende,
+            final List<Integer> vonKnotenarm,
+            final List<Integer> nachKnotenarm,
+            final List<Integer> tagestyp);
+
+    @Query(nativeQuery = true)
+    List<Zeitintervall> findWeekdayAverageSundayOrPublicHolidays(
             final String zaehlungId,
             final LocalDateTime start,
             final LocalDateTime ende,

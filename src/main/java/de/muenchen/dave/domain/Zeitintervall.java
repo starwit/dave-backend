@@ -34,7 +34,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 @NamedNativeQuery(
-        name = "Zeitintervall.findWeekdayAverageByZaehlungIdOrderBySortingIndexAsc",
+        name = "Zeitintervall.findWeekdayAverage",
         query = "select \n" + //
                 "\tzaehlung_id, \n" + //
                 "\tround(sum(pkw)/count(startuhrzeit::time)) as pkw, \n" + //
@@ -66,8 +66,87 @@ import org.hibernate.type.SqlTypes;
                 "\tsum(hochrechnungrad) as hochrechnungrad,\n" + //
                 "\tstartuhrzeit, \n" + //
                 "\tendeuhrzeit\n" + //
-                "FROM public.zeitintervall \n" + //
-                "where startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) \n" + //
+                "FROM zeitintervall \n" + //
+                "where startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp)\n" + //
+                "\tand zaehlung_id = :zaehlungId \n" + //
+                "\tand fahrbeziehung_von IN (:vonKnotenarm) and fahrbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //
+                "\tgroup by startuhrzeit::time, endeuhrzeit::time, zaehlung_id order by startUhrzeit ASC",
+        resultSetMapping = "Mapping.Zeitintervall"
+)
+@NamedNativeQuery(
+        name = "Zeitintervall.findWeekdayAverageSundayOrPublicHolidays",
+        query = "select \n" + //
+                "\tzaehlung_id, \n" + //
+                "\tround(sum(pkw)/count(startuhrzeit::time)) as pkw, \n" + //
+                "\tround(sum(lkw)/count(startuhrzeit::time)) as lkw,\n" + //
+                "\tround(sum (lastzuege)/count(startuhrzeit::time)) as lastzuege,\n" + //
+                "\tround(sum(busse)/count(startuhrzeit::time)) as busse,\n" + //
+                "\tround(sum(kraftraeder)/count(startuhrzeit::time)) as kraftraeder,\n" + //
+                "\tround(sum(fahrradfahrer)/count(startuhrzeit::time)) as fahrradfahrer,\n" + //
+                "\tround(sum(fussgaenger)/count(startuhrzeit::time)) as fussgaenger, \n" + //
+                "\tround(sum(hochrechnung_hochrechnungkfz)/count(startuhrzeit::time),2) as hochrechnungkfz,\n" + //
+                "\tround(sum(hochrechnung_hochrechnunggv)/count(startuhrzeit::time),2) as hochrechnunggv,\n" + //
+                "\tround(sum(hochrechnung_hochrechnungsv)/count(startuhrzeit::time),2) as hochrechnungsv,\n" + //
+                "\tround(sum(hochrechnungrad)/count(startuhrzeit::time)) as hochrechnungrad,\n" + //
+                "\tCURRENT_DATE + startuhrzeit::time as startUhrzeit, \n" + //
+                "\tCURRENT_DATE + endeuhrzeit::time as endeUhrzeit \n" + //
+                "from (\n" + //
+                "select \n" + //
+                "\tzaehlung_id, \n" + //
+                "\tsum(pkw) as pkw, \n" + //
+                "\tsum(lkw) as lkw,\n" + //
+                "\tsum (lastzuege) as lastzuege,\n" + //
+                "\tsum(busse) as busse,\n" + //
+                "\tsum(kraftraeder) as kraftraeder,\n" + //
+                "\tsum(fahrradfahrer) as fahrradfahrer,\n" + //
+                "\tsum(fussgaenger) as fussgaenger, \n" + //
+                "\tsum(hochrechnung_hochrechnungkfz) as hochrechnung_hochrechnungkfz,\n" + //
+                "\tsum(hochrechnung_hochrechnunggv) as hochrechnung_hochrechnunggv,\n" + //
+                "\tsum(hochrechnung_hochrechnungsv) as hochrechnung_hochrechnungsv,\n" + //
+                "\tsum(hochrechnungrad) as hochrechnungrad,\n" + //
+                "\tstartuhrzeit, \n" + //
+                "\tendeuhrzeit\n" + //
+                "where startuhrzeit between :start and :ende and (EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) or EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG')) \n"
+                +
+                "\tgroup by startuhrzeit::time, endeuhrzeit::time, zaehlung_id order by startUhrzeit ASC",
+        resultSetMapping = "Mapping.Zeitintervall"
+)
+@NamedNativeQuery(
+        name = "Zeitintervall.findWeekdayAverageWithoutPublicHolidays",
+        query = "select \n" + //
+                "\tzaehlung_id, \n" + //
+                "\tround(sum(pkw)/count(startuhrzeit::time)) as pkw, \n" + //
+                "\tround(sum(lkw)/count(startuhrzeit::time)) as lkw,\n" + //
+                "\tround(sum (lastzuege)/count(startuhrzeit::time)) as lastzuege,\n" + //
+                "\tround(sum(busse)/count(startuhrzeit::time)) as busse,\n" + //
+                "\tround(sum(kraftraeder)/count(startuhrzeit::time)) as kraftraeder,\n" + //
+                "\tround(sum(fahrradfahrer)/count(startuhrzeit::time)) as fahrradfahrer,\n" + //
+                "\tround(sum(fussgaenger)/count(startuhrzeit::time)) as fussgaenger, \n" + //
+                "\tround(sum(hochrechnung_hochrechnungkfz)/count(startuhrzeit::time),2) as hochrechnungkfz,\n" + //
+                "\tround(sum(hochrechnung_hochrechnunggv)/count(startuhrzeit::time),2) as hochrechnunggv,\n" + //
+                "\tround(sum(hochrechnung_hochrechnungsv)/count(startuhrzeit::time),2) as hochrechnungsv,\n" + //
+                "\tround(sum(hochrechnungrad)/count(startuhrzeit::time)) as hochrechnungrad,\n" + //
+                "\tCURRENT_DATE + startuhrzeit::time as startUhrzeit, \n" + //
+                "\tCURRENT_DATE + endeuhrzeit::time as endeUhrzeit \n" + //
+                "from (\n" + //
+                "select \n" + //
+                "\tzaehlung_id, \n" + //
+                "\tsum(pkw) as pkw, \n" + //
+                "\tsum(lkw) as lkw,\n" + //
+                "\tsum (lastzuege) as lastzuege,\n" + //
+                "\tsum(busse) as busse,\n" + //
+                "\tsum(kraftraeder) as kraftraeder,\n" + //
+                "\tsum(fahrradfahrer) as fahrradfahrer,\n" + //
+                "\tsum(fussgaenger) as fussgaenger, \n" + //
+                "\tsum(hochrechnung_hochrechnungkfz) as hochrechnung_hochrechnungkfz,\n" + //
+                "\tsum(hochrechnung_hochrechnunggv) as hochrechnung_hochrechnunggv,\n" + //
+                "\tsum(hochrechnung_hochrechnungsv) as hochrechnung_hochrechnungsv,\n" + //
+                "\tsum(hochrechnungrad) as hochrechnungrad,\n" + //
+                "\tstartuhrzeit, \n" + //
+                "\tendeuhrzeit\n" + //
+                "FROM zeitintervall \n" + //
+                "where (startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG'))\n"
+                + //
                 "\tand zaehlung_id = :zaehlungId \n" + //
                 "\tand fahrbeziehung_von IN (:vonKnotenarm) and fahrbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //
                 "\tgroup by startuhrzeit::time, endeuhrzeit::time, zaehlung_id order by startUhrzeit ASC",
