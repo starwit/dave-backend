@@ -50,9 +50,9 @@ public enum TagesTyp {
             IntervalDto.TagesTypEnum.WERKTAG_FERIEN),
 
     MO_SO(
-            "DTV (Mo - So)", 
-            MesswertRequestDto.TagesTypEnum.DTV, 
-            TagesaggregatRequestDto.TagesTypEnum.DTV, 
+            "DTV (Mo - So)",
+            MesswertRequestDto.TagesTypEnum.DTV,
+            TagesaggregatRequestDto.TagesTypEnum.DTV,
             IntervalDto.TagesTypEnum.DTV),
 
     FERIEN(
