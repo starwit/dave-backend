@@ -78,7 +78,8 @@ public interface ZeitintervallRepository extends JpaRepository<Zeitintervall, UU
             final LocalDateTime ende,
             final List<Integer> vonKnotenarm,
             final List<Integer> nachKnotenarm,
-            final List<Integer> tagestyp);
+            final List<Integer> tagestyp,
+            final String holidayOption);
 
     @Query(nativeQuery = true)
     List<Zeitintervall> findWeekdayAverageWithoutPublicHolidays(
@@ -87,7 +88,8 @@ public interface ZeitintervallRepository extends JpaRepository<Zeitintervall, UU
             final LocalDateTime ende,
             final List<Integer> vonKnotenarm,
             final List<Integer> nachKnotenarm,
-            final List<Integer> tagestyp);
+            final List<Integer> tagestyp,
+            final String holidayOption);
 
     @Query(nativeQuery = true)
     List<Zeitintervall> findWeekdayAverageSundayOrPublicHolidays(
@@ -96,7 +98,8 @@ public interface ZeitintervallRepository extends JpaRepository<Zeitintervall, UU
             final LocalDateTime ende,
             final List<Integer> vonKnotenarm,
             final List<Integer> nachKnotenarm,
-            final List<Integer> tagestyp);
+            final List<Integer> tagestyp,
+            final String holidayOption);
 
     Zeitintervall findByZaehlungIdAndTypeAndFahrbeziehungVonAndFahrbeziehungNachAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndFahrbeziehungFahrbewegungKreisverkehrIsNull(
             final UUID zaehlungId,

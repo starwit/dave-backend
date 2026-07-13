@@ -28,7 +28,7 @@ public class HolidaysController {
     @GetMapping(value = "/import-public-holidays")
     public ResponseEntity<Integer> loadPublicHolidaysForYear() {
         try {
-            int result = holidaysImportService.importForCurrentAndNextYear(true, TagesTyp.SONNTAG_FEIERTAG);
+            int result = holidaysImportService.importForCurrentAndNextYear(true, TagesTyp.FEIERTAG);
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid configuration: " + e.getMessage());

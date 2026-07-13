@@ -68,6 +68,7 @@ import org.hibernate.type.SqlTypes;
                 "\tendeuhrzeit\n" + //
                 "FROM zeitintervall \n" + //
                 "where startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp)\n" + //
+                "and (:holidayOption = 'WITH_SCHOOLHOLIDAYS' or (:holidayOption = 'NO_SCHOOLHOLIDAYS' and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FERIEN')) or (:holidayOption = 'ONLY_SCHOOLHOLIDAYS' and EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FERIEN'))) \n" + //
                 "\tand zaehlung_id = :zaehlungId \n" + //
                 "\tand fahrbeziehung_von IN (:vonKnotenarm) and fahrbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //
                 "\tgroup by startuhrzeit::time, endeuhrzeit::time, zaehlung_id order by startUhrzeit ASC",
@@ -106,8 +107,9 @@ import org.hibernate.type.SqlTypes;
                 "\tsum(hochrechnungrad) as hochrechnungrad,\n" + //
                 "\tstartuhrzeit, \n" + //
                 "\tendeuhrzeit\n" + //
-                "where startuhrzeit between :start and :ende and (EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) or EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG')) \n"
-                +
+                "where startuhrzeit between :start and :ende and (EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) or EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG')) \n" + //
+                "and (:holidayOption = 'WITH_SCHOOLHOLIDAYS' or (:holidayOption = 'NO_SCHOOLHOLIDAYS' and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FERIEN')) or (:holidayOption = 'ONLY_SCHOOLHOLIDAYS' and EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FERIEN'))) \n" + //
+                "\tand zaehlung_id = :zaehlungId \n" + //
                 "\tgroup by startuhrzeit::time, endeuhrzeit::time, zaehlung_id order by startUhrzeit ASC",
         resultSetMapping = "Mapping.Zeitintervall"
 )
@@ -145,7 +147,9 @@ import org.hibernate.type.SqlTypes;
                 "\tstartuhrzeit, \n" + //
                 "\tendeuhrzeit\n" + //
                 "FROM zeitintervall \n" + //
-                "where (startuhrzeit between :start and :ende and EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG'))\n"
+                "where (startuhrzeit between :start and :ende and (EXTRACT(DOW FROM startuhrzeit) IN (:tagestyp) or EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG'))" + //
+                "and (:holidayOption = 'WITH_SCHOOLHOLIDAYS' or (:holidayOption = 'NO_SCHOOLHOLIDAYS' and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FERIEN')) or (:holidayOption = 'ONLY_SCHOOLHOLIDAYS' and EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FERIEN')))" + //
+                "and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'SONNTAG_FEIERTAG'))\n"
                 + //
                 "\tand zaehlung_id = :zaehlungId \n" + //
                 "\tand fahrbeziehung_von IN (:vonKnotenarm) and fahrbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //

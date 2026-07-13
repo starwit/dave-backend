@@ -1,5 +1,6 @@
 package de.muenchen.dave.domain.dtos;
 
+import de.muenchen.dave.domain.enums.HolidayOptions;
 import de.muenchen.dave.domain.enums.TagesTyp;
 import de.muenchen.dave.domain.enums.ZaehldatenIntervall;
 import de.muenchen.dave.domain.enums.Zaehldauer;
@@ -20,6 +21,8 @@ public class OptionsDTO implements Serializable {
     private List<@NotNull LocalDate> zeitraum;
 
     private TagesTyp tagesTyp = TagesTyp.UNSPECIFIED;
+
+    private HolidayOptions ferien = HolidayOptions.WITH_SCHOOLHOLIDAYS;
 
     @NotNull
     private Zaehldauer zaehldauer;
