@@ -44,7 +44,7 @@ class HolidaysImportServiceTest {
         final LocalDate existingDate = LocalDate.of(2026, 1, 1);
         final LocalDate missingDate = LocalDate.of(2026, 5, 1);
         final ConfigurationEntity config = ConfigurationEntity.builder()
-                .keyname(HolidaysImportService.CONFIG_VALUES.get(TagesTyp.SONNTAG_FEIERTAG))
+                .keyname(HolidaysImportService.CONFIG_VALUES.get(TagesTyp.FEIERTAG))
                 .valuefield("https://example.org/PublicHolidays?validFrom={validFrom}&validTo={validTo}&countryIsoCode=DE")
                 .category("dave")
                 .build();
@@ -64,8 +64,8 @@ class HolidaysImportServiceTest {
         when(kalendertagRepository.existsByDatumBetweenAndTagestyp(
                 LocalDate.of(2026, 1, 1),
                 LocalDate.of(2026, 12, 31),
-                TagesTyp.SONNTAG_FEIERTAG)).thenReturn(false);
-        when(configurationRepository.findByKeyname(HolidaysImportService.CONFIG_VALUES.get(TagesTyp.SONNTAG_FEIERTAG))).thenReturn(config);
+                TagesTyp.FEIERTAG)).thenReturn(false);
+        when(configurationRepository.findByKeyname(HolidaysImportService.CONFIG_VALUES.get(TagesTyp.FEIERTAG))).thenReturn(config);
         when(openHolidaysApiClient.loadHolidays(any())).thenReturn(List.of(
                 existingHolidaysDTO,
                 missingHolidaysDTO));
@@ -77,7 +77,7 @@ class HolidaysImportServiceTest {
             return invocation.getArgument(0);
         }).when(kalendertagRepository).saveAll(any());
 
-        final int result = holidaysImportService.loadAndSaveHolidaysForYear(TagesTyp.SONNTAG_FEIERTAG, 2026, true);
+        final int result = holidaysImportService.loadAndSaveHolidaysForYear(TagesTyp.FEIERTAG, 2026, true);
 
         assertThat(result).isEqualTo(2);
 
@@ -90,13 +90,13 @@ class HolidaysImportServiceTest {
                 .containsExactly(existingDate, missingDate);
         assertThat(savedKalendertage)
                 .extracting(Kalendertag::getTagestyp)
-                .containsOnly(TagesTyp.SONNTAG_FEIERTAG);
+                .containsOnly(TagesTyp.FEIERTAG);
     }
 
     @Test
     void loadAndSavePublicHolidaysForYearUsesConfiguredTemplateUrl() {
         final ConfigurationEntity config = ConfigurationEntity.builder()
-                .keyname(HolidaysImportService.CONFIG_VALUES.get(TagesTyp.SONNTAG_FEIERTAG))
+                .keyname(HolidaysImportService.CONFIG_VALUES.get(TagesTyp.FEIERTAG))
                 .valuefield("https://example.org/PublicHolidays?validFrom={validFrom}&validTo={validTo}&countryIsoCode=DE")
                 .category("dave")
                 .build();
@@ -104,11 +104,11 @@ class HolidaysImportServiceTest {
         when(kalendertagRepository.existsByDatumBetweenAndTagestyp(
                 LocalDate.of(2026, 1, 1),
                 LocalDate.of(2026, 12, 31),
-                TagesTyp.SONNTAG_FEIERTAG)).thenReturn(false);
-        when(configurationRepository.findByKeyname(HolidaysImportService.CONFIG_VALUES.get(TagesTyp.SONNTAG_FEIERTAG))).thenReturn(config);
+                TagesTyp.FEIERTAG)).thenReturn(false);
+        when(configurationRepository.findByKeyname(HolidaysImportService.CONFIG_VALUES.get(TagesTyp.FEIERTAG))).thenReturn(config);
         when(openHolidaysApiClient.loadHolidays(any())).thenReturn(List.of());
 
-        holidaysImportService.loadAndSaveHolidaysForYear(TagesTyp.SONNTAG_FEIERTAG, 2026, true);
+        holidaysImportService.loadAndSaveHolidaysForYear(TagesTyp.FEIERTAG, 2026, true);
 
         final ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
         verify(openHolidaysApiClient, times(1)).loadHolidays(uriCaptor.capture());

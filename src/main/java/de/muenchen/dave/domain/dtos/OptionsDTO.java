@@ -22,7 +22,7 @@ public class OptionsDTO implements Serializable {
 
     private TagesTyp tagesTyp = TagesTyp.UNSPECIFIED;
 
-    private HolidayOptions ferien = HolidayOptions.WITH_SCHOOLHOLIDAYS;
+    private HolidayOptions holidayOptions = HolidayOptions.WITH_SCHOOLHOLIDAYS;
 
     @NotNull
     private Zaehldauer zaehldauer;

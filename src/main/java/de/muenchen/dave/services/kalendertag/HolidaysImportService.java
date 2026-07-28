@@ -27,7 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class HolidaysImportService {
 
     public static final Map<TagesTyp, String> CONFIG_VALUES = Map.of(
-            TagesTyp.SONNTAG_FEIERTAG, "publicHolidaysApiUrl",
+            TagesTyp.FEIERTAG, "publicHolidaysApiUrl",
             TagesTyp.FERIEN, "schoolHolidaysApiUrl");
 
     private final ConfigurationRepository configurationRepository;

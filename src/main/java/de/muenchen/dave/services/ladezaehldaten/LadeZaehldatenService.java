@@ -374,7 +374,7 @@ public class LadeZaehldatenService {
         LocalDateTime end = options.getZeitraum().get(1).atTime(23, 59, 59);
         List<Integer> vonKnotenarm = IntStream.rangeClosed(1, 8).boxed().toList();
         List<Integer> nachKnotenarm = IntStream.rangeClosed(1, 8).boxed().toList();
-        final HolidayOptions holidayOption = ObjectUtils.getIfNull(options.getFerien(), HolidayOptions.WITH_SCHOOLHOLIDAYS);
+        final HolidayOptions holidayOption = ObjectUtils.getIfNull(options.getHolidayOptions(), HolidayOptions.WITH_SCHOOLHOLIDAYS);
         final List<String> holidays = new ArrayList<>(List.of(""));
 
         if (options.getBeideRichtungen() && options.getVonKnotenarm() != null && options.getNachKnotenarm() != null) {
