@@ -25,7 +25,7 @@ public class HolidaysReceiver {
     @LogExecutionTime
     public void checkHolidaysOnStartup() {
         log.info("#checkHolidaysOnStartup");
-        holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.SONNTAG_FEIERTAG);
+        holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.FEIERTAG);
         holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.FERIEN);
     }
 
@@ -42,7 +42,7 @@ public class HolidaysReceiver {
     @LogExecutionTime
     public void loadHolidaysCron() {
         log.info("#loadHolidaysCron");
-        holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.SONNTAG_FEIERTAG);
+        holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.FEIERTAG);
         holidaysImportService.importForCurrentAndNextYear(false, TagesTyp.FERIEN);
     }
 }

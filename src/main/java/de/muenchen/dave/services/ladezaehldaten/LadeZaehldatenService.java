@@ -12,6 +12,7 @@ import de.muenchen.dave.domain.dtos.laden.drilldown.ZeitIntervallRow;
 import de.muenchen.dave.domain.elasticsearch.PkwEinheit;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.domain.enums.FahrbewegungKreisverkehr;
+import de.muenchen.dave.domain.enums.HolidayOptions;
 import de.muenchen.dave.domain.enums.TagesTyp;
 import de.muenchen.dave.domain.enums.TypeZeitintervall;
 import de.muenchen.dave.domain.enums.ZaehldatenIntervall;
@@ -373,6 +374,8 @@ public class LadeZaehldatenService {
         LocalDateTime end = options.getZeitraum().get(1).atTime(23, 59, 59);
         List<Integer> vonKnotenarm = IntStream.rangeClosed(1, 8).boxed().toList();
         List<Integer> nachKnotenarm = IntStream.rangeClosed(1, 8).boxed().toList();
+        final HolidayOptions holidayOption = ObjectUtils.getIfNull(options.getHolidayOptions(), HolidayOptions.WITH_SCHOOLHOLIDAYS);
+        final List<String> holidays = new ArrayList<>(List.of(""));
 
         if (options.getBeideRichtungen() && options.getVonKnotenarm() != null && options.getNachKnotenarm() != null) {
             vonKnotenarm = List.of(options.getVonKnotenarm(), options.getNachKnotenarm()).stream().filter(val -> val != null).collect(Collectors.toList());
@@ -415,21 +418,24 @@ public class LadeZaehldatenService {
 
         List<Zeitintervall> zi = null;
         if (tagesTyp == TagesTyp.SONNTAG_FEIERTAG) {
+            holidays.add(TagesTyp.SONNTAG_FEIERTAG.name());
             zi = zeitintervallRepository.findWeekdayAverageSundayOrPublicHolidays(
                     zaehlungId.toString(),
                     start,
                     end,
                     vonKnotenarm,
                     nachKnotenarm,
-                    tagesTypNumbers);
-        } else if (tagesTyp == TagesTyp.WERKTAG_DI_MI_DO || tagesTyp == TagesTyp.WERKTAG_MO_FR) {
+                    tagesTypNumbers,
+                    holidayOption.name());
+        } else if (tagesTyp == TagesTyp.WERKTAG_DI_MI_DO || tagesTyp == TagesTyp.WERKTAG_MO_FR || tagesTyp == TagesTyp.SAMSTAG) {
             zi = zeitintervallRepository.findWeekdayAverageWithoutPublicHolidays(
                     zaehlungId.toString(),
                     start,
                     end,
                     vonKnotenarm,
                     nachKnotenarm,
-                    tagesTypNumbers);
+                    tagesTypNumbers,
+                    holidayOption.name());
         } else {
             zi = zeitintervallRepository.findWeekdayAverage(
                     zaehlungId.toString(),
@@ -437,7 +443,8 @@ public class LadeZaehldatenService {
                     end,
                     vonKnotenarm,
                     nachKnotenarm,
-                    tagesTypNumbers);
+                    tagesTypNumbers,
+                    holidayOption.name());
         }
 
         log.debug("Size of extracted Zeitintervalle for Wochentagsdurchschnitt: {}", zi.size());
