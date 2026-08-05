@@ -11,4 +11,6 @@ public class ConfigurationDTO {
 
     private TenantConfigurationDTO tenant;
 
+    private String city;
+
 }

@@ -11,8 +11,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,23 +21,42 @@ public class ConfigurationService {
 
     private final ConfigurationRepository repository;
 
-    private final ConfigurationDTO configuration;
+    private double latitude = 52.41988232741599;
+    private double longitude = 10.779998775029739;
+    private int zoom = 12;
+    private boolean zaehlstelleAutomaticNumberAssignment = true;
+    private String linkDocumentationCsvFileForUploadZaehlung = "https://github.com/it-at-m/dave/blob/main/docs/src/de/documentation-csv-for-upload.md";
+    private String city = "München";
 
-    public ConfigurationService(
-        final ConfigurationRepository repository,
-            @Value("${dave.tenant.map.center.lat:48.137227}") final String lat,
-            @Value("${dave.tenant.map.center.lng:11.575517}") final String lng,
-            @Value("${dave.tenant.map.center.zoom:12}") final Integer zoom,
-            @Value("${dave.zaehlstelle.automatic-number-assignment:true}") final boolean zaehlstelleAutomaticNumberAssignment,
-            @Value("${dave.tenant.datenportal-header:Datenportal}") final String datenportalHeader,
-            @Value("${dave.zaehlstelle.link-documentation-csv-file-for-upload-zaehlung}") final String linkDocumentationCsvFileForUploadZaehlung) {
-        final var zaehlstelleConfig = new ZaehlstelleConfigurationDTO(
+    public ConfigurationDTO getConfiguration() {
+
+        for (ConfigurationEntity ce : repository.findAll()) {
+            if ("city".equals(ce.getKeyname())) {
+                city = ce.getValuefield();
+            }
+            if ("location_lat".equals(ce.getKeyname())) {
+                latitude = Double.parseDouble(ce.getValuefield());
+            }
+            if ("location_lon".equals(ce.getKeyname())) {
+                longitude = Double.parseDouble(ce.getValuefield());
+            }
+            if ("zoom".equals(ce.getKeyname())) {
+                zoom = Integer.parseInt(ce.getValuefield());
+            }
+            if ("zaehlstelleAutomaticNumberAssignment".equals(ce.getKeyname())) {
+                zaehlstelleAutomaticNumberAssignment = Boolean.parseBoolean(ce.getValuefield());
+            }
+            if ("linkDocumentationCsvFileForUploadZaehlung".equals(ce.getKeyname())) {
+                linkDocumentationCsvFileForUploadZaehlung = ce.getValuefield();
+            }
+        }
+        ZaehlstelleConfigurationDTO zaehlstelleConfig = new ZaehlstelleConfigurationDTO(
                 zaehlstelleAutomaticNumberAssignment,
                 linkDocumentationCsvFileForUploadZaehlung);
-        final var mapConfiguration = new MapConfigurationDTO(lat, lng, zoom);
-        final var tenantConfiguration = new TenantConfigurationDTO(datenportalHeader, mapConfiguration);
-        this.configuration = new ConfigurationDTO(zaehlstelleConfig, tenantConfiguration);
-        this.repository = repository;
+        MapConfigurationDTO mapConfiguration = new MapConfigurationDTO("" + latitude, "" + longitude, zoom);
+        TenantConfigurationDTO tenantConfig = new TenantConfigurationDTO("Datenportal München", mapConfiguration);
+        ConfigurationDTO configuration = new ConfigurationDTO(zaehlstelleConfig, tenantConfig, city);
+        return configuration;
     }
 
     public List<ConfigurationEntity> findAll() {
