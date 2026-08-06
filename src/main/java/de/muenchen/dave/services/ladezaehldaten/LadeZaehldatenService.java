@@ -6,8 +6,8 @@ import de.muenchen.dave.domain.dtos.laden.LadeZaehldatenTableDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatumDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatumTageswertDTO;
 import de.muenchen.dave.domain.dtos.laden.drilldown.DrilldownDTO;
-import de.muenchen.dave.domain.dtos.laden.drilldown.FahrbeziehungKey;
-import de.muenchen.dave.domain.dtos.laden.drilldown.FahrbeziehungWerte;
+import de.muenchen.dave.domain.dtos.laden.drilldown.VerkehrsbeziehungKey;
+import de.muenchen.dave.domain.dtos.laden.drilldown.VerkehrsbeziehungWerte;
 import de.muenchen.dave.domain.dtos.laden.drilldown.ZeitIntervallRow;
 import de.muenchen.dave.domain.elasticsearch.PkwEinheit;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
@@ -149,7 +149,7 @@ public class LadeZaehldatenService {
             final PkwEinheit pkwEinheit,
             final OptionsDTO options) {
         final LadeZaehldatumDTO ladeZaehldatum;
-        //log.debug("LadeZaehldatenService.mapToZaehldatum" + zeitintervall.getFahrbeziehung() + " " + zeitintervall.getType() + " "
+        //log.debug("LadeZaehldatenService.mapToZaehldatum" + zeitintervall.getVerkehrsbeziehung() + " " + zeitintervall.getType() + " "
         //        + zeitintervall.getStartUhrzeit() + " "
         //        + zeitintervall.getEndeUhrzeit() + " " + zeitintervall.getPkw());
         if (isZeitintervallForTageswert(zeitintervall, options)) {
@@ -292,18 +292,22 @@ public class LadeZaehldatenService {
     }
 
     /**
-     * Diese Methode erzeugt auf Basis der gewählten Fahrbeziehung sowie Bezeichners für Kreuzung und
+     * Diese Methode erzeugt auf Basis der gewählten Verkehrsbeziehung sowie Bezeichners für Kreuzung
+     * und
      * Kreisverkehr die für die Datenextraktion relevante
      * {@link FahrbewegungKreisverkehr}.
      *
      * @param von als Startknotenarm.
      * @param nach als Zielknotenarm
      * @param isKreisverkehr bezeichner ob erzeugung für Kreuzung oder Kreisverkehr.
-     * @return null falls es sich um eine Kreuzung oder um einen Kreisverkehr mit Fahrbeziehungsauswahl
+     * @return null falls es sich um eine Kreuzung oder um einen Kreisverkehr mit
+     *         Verkehrsbeziehungsauswahl
      *         "alle nach alle" handelt.
-     *         {@link FahrbewegungKreisverkehr#HINEIN} falls es sich um eine Fahrbeziehungsauswahl mit
+     *         {@link FahrbewegungKreisverkehr#HINEIN} falls es sich um eine Verkehrsbeziehungsauswahl
+     *         mit
      *         "X nach alle" handelt.
-     *         {@link FahrbewegungKreisverkehr#HERAUS} falls es sich um eine Fahrbeziehungsauswahl mit
+     *         {@link FahrbewegungKreisverkehr#HERAUS} falls es sich um eine Verkehrsbeziehungsauswahl
+     *         mit
      *         "alle nach X" handelt.
      */
     public static FahrbewegungKreisverkehr createFahrbewegungKreisverkehr(final Integer von,
@@ -497,7 +501,7 @@ public class LadeZaehldatenService {
         final Integer nachKnotenarm;
         if (isKreisverkehr) {
             /*
-             * In {@link de.muenchen.dave.domain.Fahrbeziehung} definiert das Attribut "von"
+             * In {@link de.muenchen.dave.domain.Verkehrsbeziehung} definiert das Attribut "von"
              * den im Kreisverkehr jeweils betroffenen Knotenarm.
              * Das Attribut "nach" ist immer "null".
              */
@@ -538,7 +542,7 @@ public class LadeZaehldatenService {
             final Set<TypeZeitintervall> types) {
 
         List<Zeitintervall> zi = zeitintervallRepository
-                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndFahrbeziehungFahrbewegungKreisverkehrOrderBySortingIndexAsc(
+                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndVerkehrsbeziehungVonAndVerkehrsbeziehungNachAndVerkehrsbeziehungFahrbewegungKreisverkehrAndTypeInOrderBySortingIndexAsc(
                         zaehlungId,
                         startUhrzeit,
                         endeUhrzeit,
@@ -550,8 +554,8 @@ public class LadeZaehldatenService {
 
         zi = zi.stream()
                 .filter(zeitintervall -> types.contains(zeitintervall.getType())
-                        && zeitintervall.getFahrbeziehung().getVon() == von
-                        && zeitintervall.getFahrbeziehung().getNach() == nach)
+                        && zeitintervall.getVerkehrsbeziehung().getVon() == von
+                        && zeitintervall.getVerkehrsbeziehung().getNach() == nach)
                 .collect(Collectors.toList());
 
         return zi;
@@ -624,19 +628,19 @@ public class LadeZaehldatenService {
 
         FahrbewegungKreisverkehr fahrbewegungKreisverkehr = createFahrbewegungKreisverkehr(options.getVonKnotenarm(), options.getNachKnotenarm(), false);
         List<Zeitintervall> zeitIntervalle = zeitintervallRepository
-                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndFahrbeziehungFahrbewegungKreisverkehrOrderBySortingIndexAsc(
+                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndVerkehrsbeziehungFahrbewegungKreisverkehrOrderBySortingIndexAsc(
                         zaehlungId,
                         startUhrzeit,
                         endeUhrzeit,
                         fahrbewegungKreisverkehr);
 
         // 1. Collect ordered movement keys
-        LinkedHashSet<FahrbeziehungKey> keySet = zeitIntervalle.stream()
-                .map(zi -> new FahrbeziehungKey(
-                        zi.getFahrbeziehung().getVon(),
-                        zi.getFahrbeziehung().getNach()))
+        LinkedHashSet<VerkehrsbeziehungKey> keySet = zeitIntervalle.stream()
+                .map(zi -> new VerkehrsbeziehungKey(
+                        zi.getVerkehrsbeziehung().getVon(),
+                        zi.getVerkehrsbeziehung().getNach()))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-        List<FahrbeziehungKey> orderedKeys = new ArrayList<>(keySet);
+        List<VerkehrsbeziehungKey> orderedKeys = new ArrayList<>(keySet);
 
         // 2. Group by time interval, preserving repository sort order
         LinkedHashMap<String, List<Zeitintervall>> byInterval = zeitIntervalle.stream()
@@ -646,7 +650,7 @@ public class LadeZaehldatenService {
                         Collectors.toList()));
 
         // 3. Accumulator for column totals
-        Map<FahrbeziehungKey, int[]> sumAccum = new LinkedHashMap<>();
+        Map<VerkehrsbeziehungKey, int[]> sumAccum = new LinkedHashMap<>();
         orderedKeys.forEach(k -> sumAccum.put(k, new int[8])); // one slot per vehicle type
 
         // 4. Build rows
@@ -654,13 +658,13 @@ public class LadeZaehldatenService {
 
         for (Map.Entry<String, List<Zeitintervall>> entry : byInterval.entrySet()) {
             String[] parts = entry.getKey().split("\\|");
-            Map<FahrbeziehungKey, FahrbeziehungWerte> werte = new LinkedHashMap<>();
+            Map<VerkehrsbeziehungKey, VerkehrsbeziehungWerte> werte = new LinkedHashMap<>();
 
             for (Zeitintervall zi : entry.getValue()) {
-                FahrbeziehungKey key = new FahrbeziehungKey(
-                        zi.getFahrbeziehung().getVon(),
-                        zi.getFahrbeziehung().getNach());
-                FahrbeziehungWerte w = new FahrbeziehungWerte(
+                VerkehrsbeziehungKey key = new VerkehrsbeziehungKey(
+                        zi.getVerkehrsbeziehung().getVon(),
+                        zi.getVerkehrsbeziehung().getNach());
+                VerkehrsbeziehungWerte w = new VerkehrsbeziehungWerte(
                         zi.getPkw() != null ? zi.getPkw() : 0,
                         zi.getLkw() != null ? zi.getLkw() : 0,
                         zi.getLastzuege() != null ? zi.getLastzuege() : 0,
@@ -685,17 +689,17 @@ public class LadeZaehldatenService {
             rows.add(new ZeitIntervallRow(parts[0], parts[1], werte));
         }
 
-        // 5. Convert accumulators to FahrbeziehungWerte
-        Map<FahrbeziehungKey, FahrbeziehungWerte> spaltensummen = new LinkedHashMap<>();
+        // 5. Convert accumulators to VerkehrsbeziehungWerte
+        Map<VerkehrsbeziehungKey, VerkehrsbeziehungWerte> spaltensummen = new LinkedHashMap<>();
         sumAccum.forEach((k, acc) -> spaltensummen.put(k,
-                new FahrbeziehungWerte(acc[0], acc[1], acc[2], acc[3], acc[4], acc[5], acc[6])));
+                new VerkehrsbeziehungWerte(acc[0], acc[1], acc[2], acc[3], acc[4], acc[5], acc[6])));
 
         return new DrilldownDTO(orderedKeys, rows, spaltensummen);
 
     }
 
-    private FahrbeziehungWerte emptyWerte() {
-        return new FahrbeziehungWerte(0, 0, 0, 0, 0, 0, 0);
+    private VerkehrsbeziehungWerte emptyWerte() {
+        return new VerkehrsbeziehungWerte(0, 0, 0, 0, 0, 0, 0);
     }
 
 }

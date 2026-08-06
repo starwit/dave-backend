@@ -68,7 +68,11 @@ public class BearbeiteZaehlungDTO {
 
     List<BearbeiteKnotenarmDTO> knotenarme;
 
-    List<BearbeiteFahrbeziehungDTO> fahrbeziehungen;
+    List<BearbeiteLaengsverkehrDTO> laengsverkehr;
+
+    List<BearbeiteQuerungsverkehrDTO> querungsverkehr;
+
+    List<BearbeiteVerkehrsbeziehungDTO> verkehrsbeziehungen;
 
     boolean unreadMessagesMobilitaetsreferat;
 

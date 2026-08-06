@@ -1,15 +1,16 @@
 package de.muenchen.dave.domain.dtos.bearbeiten;
 
 import de.muenchen.dave.domain.dtos.HochrechnungsfaktorDTO;
-import de.muenchen.dave.domain.dtos.ZeitintervallDTO;
-import java.util.List;
+import de.muenchen.dave.domain.enums.Himmelsrichtung;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-public class BearbeiteFahrbeziehungDTO {
-
-    String id;
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class BearbeiteVerkehrsbeziehungDTO extends BearbeiteBewegungsbeziehungDTO {
 
     @Transient
     Long version;
@@ -30,6 +31,8 @@ public class BearbeiteFahrbeziehungDTO {
 
     Boolean vorbei;
 
+    Himmelsrichtung strassenseite;
+
     // Knoten-Kanten-Modell
     String vonknotvonstrnr;
 
@@ -44,7 +47,5 @@ public class BearbeiteFahrbeziehungDTO {
     String nach_strnr;
 
     HochrechnungsfaktorDTO hochrechnungsfaktor;
-
-    List<ZeitintervallDTO> zeitintervalle;
 
 }

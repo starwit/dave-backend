@@ -6,7 +6,7 @@ import de.muenchen.dave.domain.dtos.OptionsDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatenZeitreiheDTO;
 import de.muenchen.dave.domain.dtos.laden.LadeZaehldatumDTO;
 import de.muenchen.dave.domain.dtos.laden.ZeitauswahlDTO;
-import de.muenchen.dave.domain.elasticsearch.Fahrbeziehung;
+import de.muenchen.dave.domain.elasticsearch.Verkehrsbeziehung;
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.domain.enums.Status;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ProcessZaehldatenZeitreiheService {
 
-    private static final String FAHRBEZIEHUNG_NICHT_VORHANDEN = "\n(Fahrbez. nicht vorh.)";
+    private static final String VERKEHRSBEZIEHUNG_NICHT_VORHANDEN = "\n(Verkehrsbez. nicht vorh.)";
     private final ZeitintervallRepository zeitintervallRepository;
     private final ZaehlstelleIndexService indexService;
     private final ZeitauswahlService zeitauswahlService;
@@ -55,29 +55,29 @@ public class ProcessZaehldatenZeitreiheService {
 
     /**
      * Hier wird überprüft, ob die mitgegebene Zählung die in den mitgegebenen Optionen ausgewählte
-     * Fahrbeziehung besitzt
+     * Verkehrsbeziehung besitzt
      *
      * @param zaehlung Zählung die überprüft werden soll
      * @param options
      * @return
      */
-    private static boolean checkFahrbeziehungen(Zaehlung zaehlung, OptionsDTO options) {
-        List<Fahrbeziehung> fahrbeziehungList;
+    private static boolean checkVerkehrsbeziehungen(final Zaehlung zaehlung, final OptionsDTO options) {
+        final List<Verkehrsbeziehung> verkehrsbeziehungList;
         if (zaehlung.getKreisverkehr()) {
             // Bei Kreisverkehr: Prüfe auf Knotenarm
-            fahrbeziehungList = zaehlung.getFahrbeziehungen()
+            verkehrsbeziehungList = zaehlung.getVerkehrsbeziehungen()
                     .stream()
-                    .filter(fahrbeziehung -> fahrbeziehung.getKnotenarm() == options.getVonKnotenarm() || options.getVonKnotenarm() == null)
+                    .filter(verkehrsbeziehung -> verkehrsbeziehung.getKnotenarm() == options.getVonKnotenarm() || options.getVonKnotenarm() == null)
                     .collect(Collectors.toList());
         } else {
             // Bei Kreuzung: Prüfe auf Von und Nach
-            fahrbeziehungList = zaehlung.getFahrbeziehungen()
+            verkehrsbeziehungList = zaehlung.getVerkehrsbeziehungen()
                     .stream()
-                    .filter(fahrbeziehung -> fahrbeziehung.getVon() == options.getVonKnotenarm() || options.getVonKnotenarm() == null)
-                    .filter(fahrbeziehung -> fahrbeziehung.getNach() == options.getNachKnotenarm() || options.getNachKnotenarm() == null)
+                    .filter(verkehrsbeziehung -> verkehrsbeziehung.getVon() == options.getVonKnotenarm() || options.getVonKnotenarm() == null)
+                    .filter(verkehrsbeziehung -> verkehrsbeziehung.getNach() == options.getNachKnotenarm() || options.getNachKnotenarm() == null)
                     .collect(Collectors.toList());
         }
-        return fahrbeziehungList.size() > 0;
+        return verkehrsbeziehungList.size() > 0;
     }
 
     /**
@@ -204,7 +204,7 @@ public class ProcessZaehldatenZeitreiheService {
 
         getFilteredAndSortedZaehlungenForZeitreihe(zaehlstelle, currentZaehlung, options, zeitauswahlDTO)
                 .forEach(zaehlung -> {
-                    if (checkFahrbeziehungen(zaehlung, options)) {
+                    if (checkVerkehrsbeziehungen(zaehlung, options)) {
                         // Setzen der Zähldauer anhand der aktuellen Zählung nötig, da es ansonsten zu einem Fehler kommt wenn die Basiszählung,
                         // auf der die Optionen basieren, eine 24-Std.-Zählung ist, diese allerdings mit 2x4-Std.-Zählungen verglichen wird
                         options.setZaehldauer(Zaehldauer.valueOf(zaehlung.getZaehldauer()));
@@ -222,7 +222,7 @@ public class ProcessZaehldatenZeitreiheService {
                             end = options.getZeitraum().get(0).atTime(options.getZeitblock().getEnd().toLocalTime());
                         }
                         zi = zeitintervallRepository
-                                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndFahrbeziehungVonNotNullOrderBySortingIndexAsc(
+                                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndVerkehrsbeziehungVonNotNullOrderBySortingIndexAsc(
                                         zaehlungId,
                                         start,
                                         end);
@@ -245,7 +245,7 @@ public class ProcessZaehldatenZeitreiheService {
                             ladeZaehldatumDTO.setFahrradfahrer(0);
                             ladeZaehldatumDTO.setFussgaenger(0);
                             ladeZaehldatumDTO.setPkwEinheiten(0);
-                            ladeZaehldatenZeitreiheDTO.getDatum().add(zaehlung.getDatum().format(FillPdfBeanService.DDMMYYYY) + FAHRBEZIEHUNG_NICHT_VORHANDEN);
+                            ladeZaehldatenZeitreiheDTO.getDatum().add(zaehlung.getDatum().format(FillPdfBeanService.DDMMYYYY) + VERKEHRSBEZIEHUNG_NICHT_VORHANDEN);
                         } else {
                             ladeZaehldatumDTO = LadeZaehldatenService.mapToZaehldatum(zi.getFirst(), zaehlung.getPkwEinheit(), options);
                             ladeZaehldatenZeitreiheDTO.getDatum().add(zaehlung.getDatum().format(FillPdfBeanService.DDMMYYYY));
@@ -262,7 +262,7 @@ public class ProcessZaehldatenZeitreiheService {
                         ladeZaehldatumDTO.setFussgaenger(0);
                         ladeZaehldatumDTO.setPkwEinheiten(0);
 
-                        ladeZaehldatenZeitreiheDTO.getDatum().add(zaehlung.getDatum().format(FillPdfBeanService.DDMMYYYY) + FAHRBEZIEHUNG_NICHT_VORHANDEN);
+                        ladeZaehldatenZeitreiheDTO.getDatum().add(zaehlung.getDatum().format(FillPdfBeanService.DDMMYYYY) + VERKEHRSBEZIEHUNG_NICHT_VORHANDEN);
                         fillLadeZaehldatenZeitreiheDTO(options, ladeZaehldatenZeitreiheDTO, ladeZaehldatumDTO);
                     }
                 });
@@ -272,8 +272,8 @@ public class ProcessZaehldatenZeitreiheService {
     private boolean filterZeitreihe(Zeitintervall zi, OptionsDTO options) {
         boolean matches = true;
         matches = zi.getType() == options.getZeitblock().getTypeZeitintervall();
-        matches = matches && options.getVonKnotenarm() == zi.getFahrbeziehung().getVon();
-        matches = matches && options.getNachKnotenarm() == zi.getFahrbeziehung().getNach();
+        matches = matches && options.getVonKnotenarm() == zi.getVerkehrsbeziehung().getVon();
+        matches = matches && options.getNachKnotenarm() == zi.getVerkehrsbeziehung().getNach();
         return matches;
     }
 
