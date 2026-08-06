@@ -71,7 +71,8 @@ import org.hibernate.type.SqlTypes;
                 "and (:holidayOption = 'WITH_SCHOOLHOLIDAYS' or (:holidayOption = 'NO_SCHOOLHOLIDAYS' and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FERIEN')) or (:holidayOption = 'ONLY_SCHOOLHOLIDAYS' and EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FERIEN'))) \n"
                 + //
                 "\tand zaehlung_id = :zaehlungId \n" + //
-                "\tand verkehrsbeziehung_von IN (:vonKnotenarm) and verkehrsbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //
+                "\tand verkehrsbeziehung_von IN (:vonKnotenarm) and verkehrsbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n"
+                + //
                 "\tgroup by startuhrzeit::time, endeuhrzeit::time, zaehlung_id order by startUhrzeit ASC",
         resultSetMapping = "Mapping.Zeitintervall"
 )
@@ -157,7 +158,8 @@ import org.hibernate.type.SqlTypes;
                 "and not EXISTS(select 1 from kalendertag where datum = startuhrzeit::date and tagestyp = 'FEIERTAG'))\n"
                 + //
                 "\tand zaehlung_id = :zaehlungId \n" + //
-                "\tand verkehrsbeziehung_von IN (:vonKnotenarm) and verkehrsbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n" + //
+                "\tand verkehrsbeziehung_von IN (:vonKnotenarm) and verkehrsbeziehung_nach IN (:nachKnotenarm) group by startuhrzeit, endeuhrzeit, zaehlung_id) \n"
+                + //
                 "\tgroup by startuhrzeit::time, endeuhrzeit::time, zaehlung_id order by startUhrzeit ASC",
         resultSetMapping = "Mapping.Zeitintervall"
 )

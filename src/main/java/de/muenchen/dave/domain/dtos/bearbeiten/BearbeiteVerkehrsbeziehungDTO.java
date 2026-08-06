@@ -3,9 +3,9 @@ package de.muenchen.dave.domain.dtos.bearbeiten;
 import de.muenchen.dave.domain.dtos.HochrechnungsfaktorDTO;
 import de.muenchen.dave.domain.enums.Himmelsrichtung;
 import lombok.Data;
-import org.springframework.data.annotation.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

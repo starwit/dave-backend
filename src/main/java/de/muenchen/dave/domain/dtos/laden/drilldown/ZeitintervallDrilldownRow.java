@@ -5,7 +5,7 @@ import java.util.Map;
 
 // One row in the drill-down table: a single 15-min interval
 public record ZeitintervallDrilldownRow(
-        List<FahrbeziehungKey> fahrbeziehungen, // ordered column groups
+        List<VerkehrsbeziehungKey> verkehrsbeziehungen, // ordered column groups
         List<ZeitIntervallRow> rows,
-        Map<FahrbeziehungKey, FahrbeziehungWerte> spaltensummen) {
+        Map<VerkehrsbeziehungKey, VerkehrsbeziehungWerte> spaltensummen) {
 }

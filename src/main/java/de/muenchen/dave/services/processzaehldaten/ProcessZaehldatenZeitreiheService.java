@@ -245,7 +245,8 @@ public class ProcessZaehldatenZeitreiheService {
                             ladeZaehldatumDTO.setFahrradfahrer(0);
                             ladeZaehldatumDTO.setFussgaenger(0);
                             ladeZaehldatumDTO.setPkwEinheiten(0);
-                            ladeZaehldatenZeitreiheDTO.getDatum().add(zaehlung.getDatum().format(FillPdfBeanService.DDMMYYYY) + VERKEHRSBEZIEHUNG_NICHT_VORHANDEN);
+                            ladeZaehldatenZeitreiheDTO.getDatum()
+                                    .add(zaehlung.getDatum().format(FillPdfBeanService.DDMMYYYY) + VERKEHRSBEZIEHUNG_NICHT_VORHANDEN);
                         } else {
                             ladeZaehldatumDTO = LadeZaehldatenService.mapToZaehldatum(zi.getFirst(), zaehlung.getPkwEinheit(), options);
                             ladeZaehldatenZeitreiheDTO.getDatum().add(zaehlung.getDatum().format(FillPdfBeanService.DDMMYYYY));

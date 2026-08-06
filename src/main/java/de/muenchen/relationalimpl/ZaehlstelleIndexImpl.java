@@ -5,7 +5,7 @@ import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.repositories.relationaldb.ZaehlstelleRepository;
 import de.muenchen.dave.repositories.relationaldb.ZaehlungRepository;
-import de.muenchen.relationalimpl.mapper.FahrbeziehungRelationalMapper;
+import de.muenchen.relationalimpl.mapper.VerkehrsbeziehungRelationalMapper;
 import de.muenchen.relationalimpl.mapper.ZaehlstelleRelationalMapper;
 import de.muenchen.relationalimpl.mapper.ZaehlungRelationalMapper;
 import java.util.List;
@@ -28,18 +28,18 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
 
     private final ZaehlungRelationalMapper zaehlungMapper;
 
-    private final FahrbeziehungRelationalMapper fahrbeziehungMapper;
+    private final VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper;
 
     public ZaehlstelleIndexImpl(final ZaehlstelleRepository zaehlstelleRepository,
             final ZaehlungRepository zaehlungRepository,
             final ZaehlstelleRelationalMapper zaehlstelleMapper,
             final ZaehlungRelationalMapper zaehlungMapper,
-            final FahrbeziehungRelationalMapper fahrbeziehungMapper) {
+            final VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper) {
         this.zaehlstelleRepository = zaehlstelleRepository;
         this.zaehlungRepository = zaehlungRepository;
         this.zaehlstelleMapper = zaehlstelleMapper;
         this.zaehlungMapper = zaehlungMapper;
-        this.fahrbeziehungMapper = fahrbeziehungMapper;
+        this.verkehrsbeziehungMapper = verkehrsbeziehungMapper;
     }
 
     public void deleteAll() {
@@ -48,7 +48,7 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
 
     public void deleteAll(Iterable<? extends Zaehlstelle> var1) {
         Iterable<de.muenchen.dave.domain.analytics.Zaehlstelle> analyticsList = zaehlstelleMapper.elasticlist2analyticslist(var1, zaehlungMapper,
-                fahrbeziehungMapper);
+                verkehrsbeziehungMapper);
         zaehlstelleRepository.deleteAll(analyticsList);
     }
 
@@ -58,7 +58,7 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
 
     public void delete(Zaehlstelle var1) {
         de.muenchen.dave.domain.analytics.Zaehlstelle zs = zaehlstelleMapper.elastic2analytics(new de.muenchen.dave.domain.analytics.Zaehlstelle(), var1,
-                zaehlungMapper, fahrbeziehungMapper);
+                zaehlungMapper, verkehrsbeziehungMapper);
         zaehlstelleRepository.delete(zs);
     }
 
@@ -76,7 +76,7 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         }
 
         //Iterable<de.muenchen.dave.domain.analytics.Zaehlung> zaehlungen = zaehlungMapper.elasticlist2analyticslist(var1.getZaehlungen());
-        zaehlstelleEntity = zaehlstelleMapper.elastic2analytics(zaehlstelleEntity, var1, zaehlungMapper, fahrbeziehungMapper);
+        zaehlstelleEntity = zaehlstelleMapper.elastic2analytics(zaehlstelleEntity, var1, zaehlungMapper, verkehrsbeziehungMapper);
         //zaehlstelleEntity.setZaehlungen((List<de.muenchen.dave.domain.analytics.Zaehlung>) zaehlungen);
         zaehlstelleEntity = zaehlstelleRepository.save(zaehlstelleEntity);
         return zaehlstelleMapper.analytics2elastic(zaehlstelleEntity);
@@ -159,7 +159,7 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         if (zaehlung.getId() == null || zaehlung.getId().isBlank()) {
             de.muenchen.dave.domain.analytics.Zaehlstelle zaehlstelle = zaehlstelleRepository.findById(UUID.fromString(zaehlstelleId)).orElseThrow();
             de.muenchen.dave.domain.analytics.Zaehlung zaehlungEntity = zaehlungMapper.elastic2analytics(new de.muenchen.dave.domain.analytics.Zaehlung(),
-                    zaehlung, fahrbeziehungMapper);
+                    zaehlung, verkehrsbeziehungMapper);
 
             zaehlungEntity.setZaehlstelle(zaehlstelle);
             zaehlungEntity = zaehlungRepository.save(zaehlungEntity);

@@ -149,7 +149,7 @@ public class Zaehlung extends BaseEntity {
     private List<Knotenarm> knotenarme;
 
     @OneToMany(mappedBy = "zaehlung", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Fahrbeziehung> fahrbeziehungen;
+    private List<Verkehrsbeziehung> verkehrsbeziehungen;
 
     @Column(name = "unread_messages_mobilitaetsreferat")
     private Boolean unreadMessagesMobilitaetsreferat;

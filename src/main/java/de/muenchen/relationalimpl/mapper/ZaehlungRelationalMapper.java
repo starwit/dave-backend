@@ -1,7 +1,7 @@
 package de.muenchen.relationalimpl.mapper;
 
-import de.muenchen.dave.domain.elasticsearch.Fahrbeziehung;
 import de.muenchen.dave.domain.elasticsearch.Knotenarm;
+import de.muenchen.dave.domain.elasticsearch.Verkehrsbeziehung;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.util.DaveConstants;
 import java.time.format.DateTimeFormatter;
@@ -24,9 +24,9 @@ public interface ZaehlungRelationalMapper {
     DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DaveConstants.DATE_FORMAT);
 
     @Mapping(target = "knotenarme", ignore = true)
-    @Mapping(target = "fahrbeziehungen", ignore = true)
+    @Mapping(target = "verkehrsbeziehungen", ignore = true)
     de.muenchen.dave.domain.analytics.Zaehlung elastic2analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlung analytics,
-            Zaehlung elastic, @Context FahrbeziehungRelationalMapper fahrbeziehungMapper);
+            Zaehlung elastic, @Context VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper);
 
     @BeforeMapping
     default void beforeElastic2Analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlung analytics) {
@@ -59,7 +59,7 @@ public interface ZaehlungRelationalMapper {
 
     @AfterMapping
     default void afterElastic2Analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlung analytics,
-            Zaehlung elastic, @Context FahrbeziehungRelationalMapper fahrbeziehungMapper) {
+            Zaehlung elastic, @Context VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper) {
 
         // Initialize collection if null
         if (analytics.getKnotenarme() == null) {
@@ -115,49 +115,49 @@ public interface ZaehlungRelationalMapper {
         analytics.getKnotenarme().addAll(updatedKnotenarme);
 
         // Initialize collection if null
-        if (analytics.getFahrbeziehungen() == null) {
-            analytics.setFahrbeziehungen(new ArrayList<>());
+        if (analytics.getVerkehrsbeziehungen() == null) {
+            analytics.setVerkehrsbeziehungen(new ArrayList<>());
         }
 
-        if (elastic.getFahrbeziehungen() == null || elastic.getFahrbeziehungen().isEmpty()) {
-            analytics.getFahrbeziehungen().clear();
+        if (elastic.getVerkehrsbeziehungen() == null || elastic.getVerkehrsbeziehungen().isEmpty()) {
+            analytics.getVerkehrsbeziehungen().clear();
             return;
         }
 
-        // Create a map of existing fahrbeziehungen by ID for quick lookup
-        Map<UUID, de.muenchen.dave.domain.analytics.Fahrbeziehung> existingFahrbeziehungenMap = new HashMap<>();
-        for (de.muenchen.dave.domain.analytics.Fahrbeziehung f : analytics.getFahrbeziehungen()) {
+        // Create a map of existing verkehrsbeziehungen by ID for quick lookup
+        Map<UUID, de.muenchen.dave.domain.analytics.Verkehrsbeziehung> existingVerkehrsbeziehungenMap = new HashMap<>();
+        for (de.muenchen.dave.domain.analytics.Verkehrsbeziehung f : analytics.getVerkehrsbeziehungen()) {
             if (f.getId() != null) {
-                existingFahrbeziehungenMap.put(f.getId(), f);
+                existingVerkehrsbeziehungenMap.put(f.getId(), f);
             }
         }
 
-        // Process incoming fahrbeziehungen
-        List<de.muenchen.dave.domain.analytics.Fahrbeziehung> updatedFahrbeziehungen = new ArrayList<>();
-        for (Fahrbeziehung elasticFahrbeziehung : elastic.getFahrbeziehungen()) {
-            de.muenchen.dave.domain.analytics.Fahrbeziehung analyticsFahrbeziehung;
+        // Process incoming verkehrsbeziehungen
+        List<de.muenchen.dave.domain.analytics.Verkehrsbeziehung> updatedVerkehrsbeziehungen = new ArrayList<>();
+        for (Verkehrsbeziehung elasticVerkehrsbeziehung : elastic.getVerkehrsbeziehungen()) {
+            de.muenchen.dave.domain.analytics.Verkehrsbeziehung analyticsVerkehrsbeziehung;
 
-            if (elasticFahrbeziehung.getId() != null && !elasticFahrbeziehung.getId().isBlank()) {
-                UUID fahrbeziehungId = UUID.fromString(elasticFahrbeziehung.getId());
-                // Update existing fahrbeziehung
-                analyticsFahrbeziehung = existingFahrbeziehungenMap.get(fahrbeziehungId);
-                if (analyticsFahrbeziehung == null) {
-                    analyticsFahrbeziehung = new de.muenchen.dave.domain.analytics.Fahrbeziehung();
+            if (elasticVerkehrsbeziehung.getId() != null && !elasticVerkehrsbeziehung.getId().isBlank()) {
+                UUID verkehrsbeziehungId = UUID.fromString(elasticVerkehrsbeziehung.getId());
+                // Update existing verkehrsbeziehung
+                analyticsVerkehrsbeziehung = existingVerkehrsbeziehungenMap.get(verkehrsbeziehungId);
+                if (analyticsVerkehrsbeziehung == null) {
+                    analyticsVerkehrsbeziehung = new de.muenchen.dave.domain.analytics.Verkehrsbeziehung();
                 }
             } else {
-                // Create new fahrbeziehung
-                analyticsFahrbeziehung = new de.muenchen.dave.domain.analytics.Fahrbeziehung();
+                // Create new verkehrsbeziehung
+                analyticsVerkehrsbeziehung = new de.muenchen.dave.domain.analytics.Verkehrsbeziehung();
             }
             // Map properties from elastic to analytics
-            analyticsFahrbeziehung = fahrbeziehungMapper.elastic2analytics(analyticsFahrbeziehung, elasticFahrbeziehung);
+            analyticsVerkehrsbeziehung = verkehrsbeziehungMapper.elastic2analytics(analyticsVerkehrsbeziehung, elasticVerkehrsbeziehung);
             // Set bidirectional relationship
-            analyticsFahrbeziehung.setZaehlung(analytics);
-            updatedFahrbeziehungen.add(analyticsFahrbeziehung);
+            analyticsVerkehrsbeziehung.setZaehlung(analytics);
+            updatedVerkehrsbeziehungen.add(analyticsVerkehrsbeziehung);
         }
 
         // Clear and replace the collection content (preserves Hibernate wrapper)
-        analytics.getFahrbeziehungen().clear();
-        analytics.getFahrbeziehungen().addAll(updatedFahrbeziehungen);
+        analytics.getVerkehrsbeziehungen().clear();
+        analytics.getVerkehrsbeziehungen().addAll(updatedVerkehrsbeziehungen);
     }
 
     Iterable<de.muenchen.dave.domain.analytics.Zaehlung> elasticlist2analyticslist(Iterable<? extends Zaehlung> elastic);

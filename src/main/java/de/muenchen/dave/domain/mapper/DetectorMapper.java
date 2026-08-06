@@ -13,16 +13,16 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface DetectorMapper {
 
-    @Mapping(target = "von", source = "fahrbeziehung.von")
-    @Mapping(target = "nach", source = "fahrbeziehung.nach")
+    @Mapping(target = "von", source = "verkehrsbeziehung.von")
+    @Mapping(target = "nach", source = "verkehrsbeziehung.nach")
     @Mapping(target = "startUhrzeit", ignore = true)
     @Mapping(target = "endeUhrzeit", ignore = true)
     DetectionDTO bean2DetectionDTO(Zeitintervall zi);
 
-    @Mapping(target = "fahrbeziehung.von", source = "von")
-    @Mapping(target = "fahrbeziehung.nach", source = "nach")
+    @Mapping(target = "verkehrsbeziehung.von", source = "von")
+    @Mapping(target = "verkehrsbeziehung.nach", source = "nach")
     @Mapping(target = "type", constant = "STUNDE_VIERTEL")
-    @Mapping(target = "fahrbeziehungId", ignore = true)
+    @Mapping(target = "bewegungsbeziehungId", ignore = true)
     @Mapping(target = "sortingIndex", ignore = true)
     @Mapping(target = "zaehlungId", source = "zaehlungId")
     @Mapping(target = "hochrechnung", ignore = true)

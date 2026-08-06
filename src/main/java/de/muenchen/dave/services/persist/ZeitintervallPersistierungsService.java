@@ -84,14 +84,16 @@ public class ZeitintervallPersistierungsService {
          */
         final List<Zeitintervall> kiZeitintervalle = new ArrayList<>();
         if (kiAufbereitung) {
-            final List<List<Zeitintervall>> groupedZeitintervalleByVerkehrsbeziehung = ZeitintervallKIUtil.groupZeitintervalleByVerkehrsbeziehung(zeitintervalle);
+            final List<List<Zeitintervall>> groupedZeitintervalleByVerkehrsbeziehung = ZeitintervallKIUtil
+                    .groupZeitintervalleByVerkehrsbeziehung(zeitintervalle);
             try {
                 final KIPredictionResult[] predictionResults = kiService
                         .predictHochrechnungTageswerteForZeitIntervalleOfZaehlung(groupedZeitintervalleByVerkehrsbeziehung);
                 final List<Zeitintervall> zeitintervallForEachVerkehrsbeziehung = ZeitintervallKIUtil
                         .extractZeitintervallForEachVerkehrsbeziehung(groupedZeitintervalleByVerkehrsbeziehung);
                 kiZeitintervalle.addAll(
-                        ZeitintervallKIUtil.createKIZeitintervalleFromKIPredictionResults(Arrays.asList(predictionResults), zeitintervallForEachVerkehrsbeziehung));
+                        ZeitintervallKIUtil.createKIZeitintervalleFromKIPredictionResults(Arrays.asList(predictionResults),
+                                zeitintervallForEachVerkehrsbeziehung));
                 ZeitintervallKIUtil.expandKiHochrechnungen(kiZeitintervalle);
                 ZeitintervallKIUtil.mergeKiHochrechnungInGesamt(summierteZeitbloecke, kiZeitintervalle);
             } catch (PredictionFailedException exception) {

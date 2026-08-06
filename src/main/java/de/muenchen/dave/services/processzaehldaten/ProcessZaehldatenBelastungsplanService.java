@@ -682,7 +682,7 @@ public class ProcessZaehldatenBelastungsplanService {
     }
 
     public List<Zeitintervall> extractZeitintervalle(final String zaehlungId,
-        final OptionsDTO options) throws DataNotFoundException {
+            final OptionsDTO options) throws DataNotFoundException {
         final Zaehlung zaehlung = zaehlstelleIndexService.getZaehlung(zaehlungId);
         List<Zeitintervall> zi = new ArrayList<>();
         LocalDateTime start = options.getZeitblock().getStart();
@@ -696,7 +696,7 @@ public class ProcessZaehldatenBelastungsplanService {
             end = options.getZeitraum().get(0).atTime(options.getZeitblock().getEnd().toLocalTime());
         }
         zi = zeitintervallRepository
-                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndVerkehrsbeziehungVonNotNullAndTypeOrderBySortingIndexAsc(
+                .findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndVerkehrsbeziehungVonNotNullOrderBySortingIndexAsc(
                         UUID.fromString(zaehlungId),
                         start,
                         end);

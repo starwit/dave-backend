@@ -6,5 +6,5 @@ import java.util.Map;
 public record ZeitIntervallRow(
         String startUhrzeit,
         String endeUhrzeit,
-        Map<FahrbeziehungKey, FahrbeziehungWerte> wertByFahrbeziehung) {
+        Map<VerkehrsbeziehungKey, VerkehrsbeziehungWerte> wertByVerkehrsbeziehung) {
 }

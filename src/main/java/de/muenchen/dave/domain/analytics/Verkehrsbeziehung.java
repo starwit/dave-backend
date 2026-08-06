@@ -20,7 +20,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class Fahrbeziehung extends BaseEntity {
+public class Verkehrsbeziehung extends BaseEntity {
 
     @Column(name = "is_kreuzung")
     private Boolean isKreuzung;

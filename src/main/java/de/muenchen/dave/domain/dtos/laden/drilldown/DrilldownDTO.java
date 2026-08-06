@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public record DrilldownDTO(
-        List<FahrbeziehungKey> fahrbeziehungen, // ordered column groups
+        List<VerkehrsbeziehungKey> verkehrsbeziehung, // ordered column groups
         List<ZeitIntervallRow> zeitintervalle,
-        Map<FahrbeziehungKey, FahrbeziehungWerte> spaltensummen) {
+        Map<VerkehrsbeziehungKey, VerkehrsbeziehungWerte> spaltensummen) {
 }

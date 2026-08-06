@@ -101,7 +101,6 @@ public interface ZeitintervallRepository extends JpaRepository<Zeitintervall, UU
             final List<Integer> tagestyp,
             final String holidayOption);
 
-
     Zeitintervall findByZaehlungIdAndTypeAndVerkehrsbeziehungVonAndVerkehrsbeziehungNachAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndVerkehrsbeziehungFahrbewegungKreisverkehrIsNull(
             final UUID zaehlungId,
             final TypeZeitintervall type,

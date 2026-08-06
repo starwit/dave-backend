@@ -106,11 +106,11 @@ public class ExternalDetectorService {
         List<DetectionDTO> zeroDetectionsToAdd = new ArrayList<>();
 
         Zaehlung zaehlung = zaehlstelleIndexService.getZaehlung(detection.getZaehlungId().toString());
-        zaehlung.getFahrbeziehungen().forEach(f -> {
+        zaehlung.getVerkehrsbeziehungen().forEach(f -> {
             int von = f.getVon();
             int nach = f.getNach();
-            if (!detectionHasDataForFahrbeziehung(detections, von, nach)) {
-                log.debug("Detection enthält keine Daten für die Fahrbeziehung von {} nach {}, füge diese mit Zählwert 0 hinzu", von, nach);
+            if (!detectionHasDataForVerkehrsbeziehung(detections, von, nach)) {
+                log.debug("Detection enthält keine Daten für die Verkehrsbeziehung von {} nach {}, füge diese mit Zählwert 0 hinzu", von, nach);
                 DetectionDTO d = new DetectionDTO();
                 d.setStartUhrzeit(start);
                 d.setEndeUhrzeit(ende);
@@ -131,7 +131,7 @@ public class ExternalDetectorService {
         return detections;
     }
 
-    private boolean detectionHasDataForFahrbeziehung(List<DetectionDTO> detections, Integer von, Integer nach) {
+    private boolean detectionHasDataForVerkehrsbeziehung(List<DetectionDTO> detections, Integer von, Integer nach) {
         return detections.stream()
                 .anyMatch(d -> d.getVon() == von && d.getNach() == nach);
     }

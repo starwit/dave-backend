@@ -108,9 +108,9 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         if (StringUtils.isEmpty(zaehlung.getId())) {
             zaehlung.setId(UUID.randomUUID().toString());
         }
-        // Set Fahrbeziehung ID
-        if (CollectionUtils.isNotEmpty(zaehlung.getFahrbeziehungen())) {
-            zaehlung.getFahrbeziehungen().stream()
+        // Set Verkehrsbeziehung ID
+        if (CollectionUtils.isNotEmpty(zaehlung.getVerkehrsbeziehungen())) {
+            zaehlung.getVerkehrsbeziehungen().stream()
                     .filter(fahrbeziehung -> StringUtils.isEmpty(fahrbeziehung.getId()))
                     .forEach(fahrbeziehung -> fahrbeziehung.setId(UUID.randomUUID().toString()));
         }
