@@ -149,6 +149,12 @@ public class Zaehlung extends BaseEntity {
     private List<Knotenarm> knotenarme;
 
     @OneToMany(mappedBy = "zaehlung", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Laengsverkehr> laengsverkehr;
+
+    @OneToMany(mappedBy = "zaehlung", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Querungsverkehr> querungsverkehr;
+
+    @OneToMany(mappedBy = "zaehlung", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Verkehrsbeziehung> verkehrsbeziehungen;
 
     @Column(name = "unread_messages_mobilitaetsreferat")
