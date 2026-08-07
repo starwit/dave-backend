@@ -1,0 +1,10 @@
+
+ALTER TABLE fahrbeziehung RENAME TO verkehrsbeziehung;
+ALTER TABLE verkehrsbeziehung RENAME CONSTRAINT fahrbeziehung_pkey TO verkehrsbeziehung_pkey;
+ALTER INDEX idx_fahrbeziehung_zaehlung RENAME TO idx_verkehrsbeziehung_zaehlung;
+ALTER INDEX idx_fahrbeziehung_hochrechnungsfaktor RENAME TO idx_verkehrsbeziehung_hochrechnungsfaktor;
+ALTER TABLE verkehrsbeziehung RENAME CONSTRAINT fk_fahrbeziehung_zaehlung TO fk_verkehrsbeziehung_zaehlung;
+ALTER TABLE verkehrsbeziehung RENAME CONSTRAINT fk_fahrbeziehung_hochrechnungsfaktor TO fk_verkehrsbeziehung_hochrechnungsfaktor;
+
+-- Make sure owner is consistent
+ALTER TABLE verkehrsbeziehung OWNER TO dave;
