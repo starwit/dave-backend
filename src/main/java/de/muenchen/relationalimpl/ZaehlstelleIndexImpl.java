@@ -5,6 +5,8 @@ import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.repositories.relationaldb.ZaehlstelleRepository;
 import de.muenchen.dave.repositories.relationaldb.ZaehlungRepository;
+import de.muenchen.relationalimpl.mapper.LaengsverkehrRelationalMapper;
+import de.muenchen.relationalimpl.mapper.QuerungsverkehrRelationalMapper;
 import de.muenchen.relationalimpl.mapper.VerkehrsbeziehungRelationalMapper;
 import de.muenchen.relationalimpl.mapper.ZaehlstelleRelationalMapper;
 import de.muenchen.relationalimpl.mapper.ZaehlungRelationalMapper;
@@ -30,16 +32,23 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
 
     private final VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper;
 
+    private final QuerungsverkehrRelationalMapper querungsverkehrMapper;
+
+    private final LaengsverkehrRelationalMapper laengsverkehrMapper;
+
     public ZaehlstelleIndexImpl(final ZaehlstelleRepository zaehlstelleRepository,
             final ZaehlungRepository zaehlungRepository,
             final ZaehlstelleRelationalMapper zaehlstelleMapper,
             final ZaehlungRelationalMapper zaehlungMapper,
-            final VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper) {
+            final VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper, QuerungsverkehrRelationalMapper querungsverkehrMapper,
+            LaengsverkehrRelationalMapper laengsverkehrMapper) {
         this.zaehlstelleRepository = zaehlstelleRepository;
         this.zaehlungRepository = zaehlungRepository;
         this.zaehlstelleMapper = zaehlstelleMapper;
         this.zaehlungMapper = zaehlungMapper;
         this.verkehrsbeziehungMapper = verkehrsbeziehungMapper;
+        this.querungsverkehrMapper = querungsverkehrMapper;
+        this.laengsverkehrMapper = laengsverkehrMapper;
     }
 
     public void deleteAll() {
@@ -48,7 +57,7 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
 
     public void deleteAll(Iterable<? extends Zaehlstelle> var1) {
         Iterable<de.muenchen.dave.domain.analytics.Zaehlstelle> analyticsList = zaehlstelleMapper.elasticlist2analyticslist(var1, zaehlungMapper,
-                verkehrsbeziehungMapper);
+                verkehrsbeziehungMapper, querungsverkehrMapper, laengsverkehrMapper);
         zaehlstelleRepository.deleteAll(analyticsList);
     }
 
@@ -58,7 +67,7 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
 
     public void delete(Zaehlstelle var1) {
         de.muenchen.dave.domain.analytics.Zaehlstelle zs = zaehlstelleMapper.elastic2analytics(new de.muenchen.dave.domain.analytics.Zaehlstelle(), var1,
-                zaehlungMapper, verkehrsbeziehungMapper);
+                zaehlungMapper, verkehrsbeziehungMapper, querungsverkehrMapper, laengsverkehrMapper);
         zaehlstelleRepository.delete(zs);
     }
 
@@ -76,7 +85,8 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         }
 
         //Iterable<de.muenchen.dave.domain.analytics.Zaehlung> zaehlungen = zaehlungMapper.elasticlist2analyticslist(var1.getZaehlungen());
-        zaehlstelleEntity = zaehlstelleMapper.elastic2analytics(zaehlstelleEntity, var1, zaehlungMapper, verkehrsbeziehungMapper);
+        zaehlstelleEntity = zaehlstelleMapper.elastic2analytics(zaehlstelleEntity, var1, zaehlungMapper, verkehrsbeziehungMapper, querungsverkehrMapper,
+                laengsverkehrMapper);
         //zaehlstelleEntity.setZaehlungen((List<de.muenchen.dave.domain.analytics.Zaehlung>) zaehlungen);
         zaehlstelleEntity = zaehlstelleRepository.save(zaehlstelleEntity);
         return zaehlstelleMapper.analytics2elastic(zaehlstelleEntity);
@@ -159,7 +169,7 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         if (zaehlung.getId() == null || zaehlung.getId().isBlank()) {
             de.muenchen.dave.domain.analytics.Zaehlstelle zaehlstelle = zaehlstelleRepository.findById(UUID.fromString(zaehlstelleId)).orElseThrow();
             de.muenchen.dave.domain.analytics.Zaehlung zaehlungEntity = zaehlungMapper.elastic2analytics(new de.muenchen.dave.domain.analytics.Zaehlung(),
-                    zaehlung, verkehrsbeziehungMapper);
+                    zaehlung, verkehrsbeziehungMapper, querungsverkehrMapper, laengsverkehrMapper);
 
             zaehlungEntity.setZaehlstelle(zaehlstelle);
             zaehlungEntity = zaehlungRepository.save(zaehlungEntity);

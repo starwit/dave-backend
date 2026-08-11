@@ -3,9 +3,11 @@ package de.muenchen.elasticimpl;
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -108,12 +110,15 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         if (StringUtils.isEmpty(zaehlung.getId())) {
             zaehlung.setId(UUID.randomUUID().toString());
         }
-        // Set Verkehrsbeziehung ID
-        if (CollectionUtils.isNotEmpty(zaehlung.getVerkehrsbeziehungen())) {
-            zaehlung.getVerkehrsbeziehungen().stream()
-                    .filter(fahrbeziehung -> StringUtils.isEmpty(fahrbeziehung.getId()))
-                    .forEach(fahrbeziehung -> fahrbeziehung.setId(UUID.randomUUID().toString()));
-        }
+
+        // Set ID in Verkehrsbeziehung, Laengsverkehr and Querungsverkehr if it exists.
+        Stream.of(
+                CollectionUtils.emptyIfNull(zaehlung.getVerkehrsbeziehungen()),
+                CollectionUtils.emptyIfNull(zaehlung.getLaengsverkehr()),
+                CollectionUtils.emptyIfNull(zaehlung.getQuerungsverkehr()))
+                .flatMap(Collection::stream)
+                .filter(bewegungsbeziehung -> StringUtils.isEmpty(bewegungsbeziehung.getId()))
+                .forEach(bewegungsbeziehung -> bewegungsbeziehung.setId(UUID.randomUUID().toString()));
 
         return zaehlung;
     }

@@ -212,15 +212,6 @@ public class ZaehlstelleIndexService {
         // Set Zaehlung ID
         zaehlung = this.zaehlstelleIndex.initializeZaehlung(zaehlung, zaehlstelleId);
 
-        // Set ID in Verkehrsbeziehung, Laengsverkehr and Querungsverkehr if it exists.
-        Stream.of(
-                CollectionUtils.emptyIfNull(zaehlung.getVerkehrsbeziehungen()),
-                CollectionUtils.emptyIfNull(zaehlung.getLaengsverkehr()),
-                CollectionUtils.emptyIfNull(zaehlung.getQuerungsverkehr()))
-                .flatMap(Collection::stream)
-                .filter(bewegungsbeziehung -> StringUtils.isEmpty(bewegungsbeziehung.getId()))
-                .forEach(bewegungsbeziehung -> bewegungsbeziehung.setId(UUID.randomUUID().toString()));
-
         // Zählstelle erneuern
         final Optional<Zaehlstelle> zsto = this.zaehlstelleIndex.findById(zaehlstelleId);
         if (zsto.isPresent()) {

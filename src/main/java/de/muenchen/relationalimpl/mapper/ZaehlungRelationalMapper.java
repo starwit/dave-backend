@@ -1,6 +1,8 @@
 package de.muenchen.relationalimpl.mapper;
 
 import de.muenchen.dave.domain.elasticsearch.Knotenarm;
+import de.muenchen.dave.domain.elasticsearch.Laengsverkehr;
+import de.muenchen.dave.domain.elasticsearch.Querungsverkehr;
 import de.muenchen.dave.domain.elasticsearch.Verkehrsbeziehung;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.util.DaveConstants;
@@ -25,11 +27,15 @@ public interface ZaehlungRelationalMapper {
 
     @Mapping(target = "knotenarme", ignore = true)
     @Mapping(target = "verkehrsbeziehungen", ignore = true)
+    @Mapping(target = "querungsverkehr", ignore = true)
+    @Mapping(target = "laengsverkehr", ignore = true)
     de.muenchen.dave.domain.analytics.Zaehlung elastic2analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlung analytics,
-            Zaehlung elastic, @Context VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper);
+            Zaehlung elastic, @Context VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper,
+            @Context QuerungsverkehrRelationalMapper querungsverkehrMapper, @Context LaengsverkehrRelationalMapper laengsverkehrMapper);
 
     @BeforeMapping
-    default void beforeElastic2Analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlung analytics) {
+    default void beforeElastic2Analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlung analytics,
+            @Context QuerungsverkehrRelationalMapper querungsverkehrMapper, @Context LaengsverkehrRelationalMapper laengsverkehrMapper) {
         // Ensure all list fields are mutable ArrayLists to avoid UnsupportedOperationException
         // when MapStruct tries to clear them during mapping
         if (analytics.getSuchwoerter() == null) {
@@ -59,7 +65,8 @@ public interface ZaehlungRelationalMapper {
 
     @AfterMapping
     default void afterElastic2Analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlung analytics,
-            Zaehlung elastic, @Context VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper) {
+            Zaehlung elastic, @Context VerkehrsbeziehungRelationalMapper verkehrsbeziehungMapper,
+            @Context QuerungsverkehrRelationalMapper querungsverkehrMapper, @Context LaengsverkehrRelationalMapper laengsverkehrMapper) {
 
         // Initialize collection if null
         if (analytics.getKnotenarme() == null) {
@@ -121,43 +128,131 @@ public interface ZaehlungRelationalMapper {
 
         if (elastic.getVerkehrsbeziehungen() == null || elastic.getVerkehrsbeziehungen().isEmpty()) {
             analytics.getVerkehrsbeziehungen().clear();
+        } else {
+            // Create a map of existing verkehrsbeziehungen by ID for quick lookup
+            Map<UUID, de.muenchen.dave.domain.analytics.Verkehrsbeziehung> existingVerkehrsbeziehungenMap = new HashMap<>();
+            for (de.muenchen.dave.domain.analytics.Verkehrsbeziehung f : analytics.getVerkehrsbeziehungen()) {
+                if (f.getId() != null) {
+                    existingVerkehrsbeziehungenMap.put(f.getId(), f);
+                }
+            }
+
+            // Process incoming verkehrsbeziehungen
+            List<de.muenchen.dave.domain.analytics.Verkehrsbeziehung> updatedVerkehrsbeziehungen = new ArrayList<>();
+            for (Verkehrsbeziehung elasticVerkehrsbeziehung : elastic.getVerkehrsbeziehungen()) {
+                de.muenchen.dave.domain.analytics.Verkehrsbeziehung analyticsVerkehrsbeziehung;
+
+                if (elasticVerkehrsbeziehung.getId() != null && !elasticVerkehrsbeziehung.getId().isBlank()) {
+                    UUID verkehrsbeziehungId = UUID.fromString(elasticVerkehrsbeziehung.getId());
+                    // Update existing verkehrsbeziehung
+                    analyticsVerkehrsbeziehung = existingVerkehrsbeziehungenMap.get(verkehrsbeziehungId);
+                    if (analyticsVerkehrsbeziehung == null) {
+                        analyticsVerkehrsbeziehung = new de.muenchen.dave.domain.analytics.Verkehrsbeziehung();
+                    }
+                } else {
+                    // Create new verkehrsbeziehung
+                    analyticsVerkehrsbeziehung = new de.muenchen.dave.domain.analytics.Verkehrsbeziehung();
+                }
+                // Map properties from elastic to analytics
+                analyticsVerkehrsbeziehung = verkehrsbeziehungMapper.elastic2analytics(analyticsVerkehrsbeziehung, elasticVerkehrsbeziehung);
+                // Set bidirectional relationship
+                analyticsVerkehrsbeziehung.setZaehlung(analytics);
+                updatedVerkehrsbeziehungen.add(analyticsVerkehrsbeziehung);
+            }
+
+            // Clear and replace the collection content (preserves Hibernate wrapper)
+            analytics.getVerkehrsbeziehungen().clear();
+            analytics.getVerkehrsbeziehungen().addAll(updatedVerkehrsbeziehungen);
+        }
+
+        // Initialize collection if null
+        if (analytics.getQuerungsverkehr() == null) {
+            analytics.setQuerungsverkehr(new ArrayList<>());
+        }
+
+        if (elastic.getQuerungsverkehr() == null || elastic.getQuerungsverkehr().isEmpty()) {
+            analytics.getQuerungsverkehr().clear();
+        } else {
+            // Create a map of existing querungsverkehr by ID for quick lookup
+            Map<UUID, de.muenchen.dave.domain.analytics.Querungsverkehr> existingQuerungsverkehrMap = new HashMap<>();
+            for (de.muenchen.dave.domain.analytics.Querungsverkehr f : analytics.getQuerungsverkehr()) {
+                if (f.getId() != null) {
+                    existingQuerungsverkehrMap.put(f.getId(), f);
+                }
+            }
+
+            // Process incoming querungsverkehr
+            List<de.muenchen.dave.domain.analytics.Querungsverkehr> updatedQuerungsverkehr = new ArrayList<>();
+            for (Querungsverkehr elasticQuerungsverkehr : elastic.getQuerungsverkehr()) {
+                de.muenchen.dave.domain.analytics.Querungsverkehr analyticsQuerungsverkehr;
+
+                if (elasticQuerungsverkehr.getId() != null && !elasticQuerungsverkehr.getId().isBlank()) {
+                    UUID querungsverkehrId = UUID.fromString(elasticQuerungsverkehr.getId());
+                    // Update existing querungsverkehr
+                    analyticsQuerungsverkehr = existingQuerungsverkehrMap.get(querungsverkehrId);
+                    if (analyticsQuerungsverkehr == null) {
+                        analyticsQuerungsverkehr = new de.muenchen.dave.domain.analytics.Querungsverkehr();
+                    }
+                } else {
+                    // Create new querungsverkehr
+                    analyticsQuerungsverkehr = new de.muenchen.dave.domain.analytics.Querungsverkehr();
+                }
+                // Map properties from elastic to analytics
+                analyticsQuerungsverkehr = querungsverkehrMapper.elastic2analytics(analyticsQuerungsverkehr, elasticQuerungsverkehr);
+                // Set bidirectional relationship
+                analyticsQuerungsverkehr.setZaehlung(analytics);
+                updatedQuerungsverkehr.add(analyticsQuerungsverkehr);
+            }
+
+            // Clear and replace the collection content (preserves Hibernate wrapper)
+            analytics.getQuerungsverkehr().clear();
+            analytics.getQuerungsverkehr().addAll(updatedQuerungsverkehr);
+        }
+
+        // Initialize collection if null
+        if (analytics.getLaengsverkehr() == null) {
+            analytics.setLaengsverkehr(new ArrayList<>());
+        }
+
+        if (elastic.getLaengsverkehr() == null || elastic.getLaengsverkehr().isEmpty()) {
+            analytics.getLaengsverkehr().clear();
             return;
         }
 
-        // Create a map of existing verkehrsbeziehungen by ID for quick lookup
-        Map<UUID, de.muenchen.dave.domain.analytics.Verkehrsbeziehung> existingVerkehrsbeziehungenMap = new HashMap<>();
-        for (de.muenchen.dave.domain.analytics.Verkehrsbeziehung f : analytics.getVerkehrsbeziehungen()) {
+        // Create a map of existing laengsverkehr by ID for quick lookup
+        Map<UUID, de.muenchen.dave.domain.analytics.Laengsverkehr> existingLaengsverkehrMap = new HashMap<>();
+        for (de.muenchen.dave.domain.analytics.Laengsverkehr f : analytics.getLaengsverkehr()) {
             if (f.getId() != null) {
-                existingVerkehrsbeziehungenMap.put(f.getId(), f);
+                existingLaengsverkehrMap.put(f.getId(), f);
             }
         }
 
-        // Process incoming verkehrsbeziehungen
-        List<de.muenchen.dave.domain.analytics.Verkehrsbeziehung> updatedVerkehrsbeziehungen = new ArrayList<>();
-        for (Verkehrsbeziehung elasticVerkehrsbeziehung : elastic.getVerkehrsbeziehungen()) {
-            de.muenchen.dave.domain.analytics.Verkehrsbeziehung analyticsVerkehrsbeziehung;
+        // Process incoming laengsverkehr
+        List<de.muenchen.dave.domain.analytics.Laengsverkehr> updatedLaengsverkehr = new ArrayList<>();
+        for (Laengsverkehr elasticLaengsverkehr : elastic.getLaengsverkehr()) {
+            de.muenchen.dave.domain.analytics.Laengsverkehr analyticsLaengsverkehr;
 
-            if (elasticVerkehrsbeziehung.getId() != null && !elasticVerkehrsbeziehung.getId().isBlank()) {
-                UUID verkehrsbeziehungId = UUID.fromString(elasticVerkehrsbeziehung.getId());
-                // Update existing verkehrsbeziehung
-                analyticsVerkehrsbeziehung = existingVerkehrsbeziehungenMap.get(verkehrsbeziehungId);
-                if (analyticsVerkehrsbeziehung == null) {
-                    analyticsVerkehrsbeziehung = new de.muenchen.dave.domain.analytics.Verkehrsbeziehung();
+            if (elasticLaengsverkehr.getId() != null && !elasticLaengsverkehr.getId().isBlank()) {
+                UUID laengsverkehrId = UUID.fromString(elasticLaengsverkehr.getId());
+                // Update existing laengsverkehr
+                analyticsLaengsverkehr = existingLaengsverkehrMap.get(laengsverkehrId);
+                if (analyticsLaengsverkehr == null) {
+                    analyticsLaengsverkehr = new de.muenchen.dave.domain.analytics.Laengsverkehr();
                 }
             } else {
-                // Create new verkehrsbeziehung
-                analyticsVerkehrsbeziehung = new de.muenchen.dave.domain.analytics.Verkehrsbeziehung();
+                // Create new laengsverkehr
+                analyticsLaengsverkehr = new de.muenchen.dave.domain.analytics.Laengsverkehr();
             }
             // Map properties from elastic to analytics
-            analyticsVerkehrsbeziehung = verkehrsbeziehungMapper.elastic2analytics(analyticsVerkehrsbeziehung, elasticVerkehrsbeziehung);
+            analyticsLaengsverkehr = laengsverkehrMapper.elastic2analytics(analyticsLaengsverkehr, elasticLaengsverkehr);
             // Set bidirectional relationship
-            analyticsVerkehrsbeziehung.setZaehlung(analytics);
-            updatedVerkehrsbeziehungen.add(analyticsVerkehrsbeziehung);
+            analyticsLaengsverkehr.setZaehlung(analytics);
+            updatedLaengsverkehr.add(analyticsLaengsverkehr);
         }
 
         // Clear and replace the collection content (preserves Hibernate wrapper)
-        analytics.getVerkehrsbeziehungen().clear();
-        analytics.getVerkehrsbeziehungen().addAll(updatedVerkehrsbeziehungen);
+        analytics.getLaengsverkehr().clear();
+        analytics.getLaengsverkehr().addAll(updatedLaengsverkehr);
     }
 
     Iterable<de.muenchen.dave.domain.analytics.Zaehlung> elasticlist2analyticslist(Iterable<? extends Zaehlung> elastic);

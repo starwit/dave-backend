@@ -20,7 +20,8 @@ public interface ZaehlstelleRelationalMapper {
 
     @Mapping(target = "zaehlungen", ignore = true)
     de.muenchen.dave.domain.analytics.Zaehlstelle elastic2analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlstelle analytics,
-            Zaehlstelle elastic, @Context ZaehlungRelationalMapper zaehlungMapper, @Context VerkehrsbeziehungRelationalMapper fahrbeziehungMapper);
+            Zaehlstelle elastic, @Context ZaehlungRelationalMapper zaehlungMapper, @Context VerkehrsbeziehungRelationalMapper fahrbeziehungMapper,
+            @Context QuerungsverkehrRelationalMapper querungsverkehrMapper, @Context LaengsverkehrRelationalMapper laengsverkehrMapper);
 
     @BeforeMapping
     default void beforeElastic2Analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlstelle analytics) {
@@ -41,7 +42,8 @@ public interface ZaehlstelleRelationalMapper {
 
     @AfterMapping
     default void afterElastic2Analytics(@MappingTarget de.muenchen.dave.domain.analytics.Zaehlstelle analytics,
-            Zaehlstelle elastic, @Context ZaehlungRelationalMapper zaehlungMapper, @Context VerkehrsbeziehungRelationalMapper fahrbeziehungMapper) {
+            Zaehlstelle elastic, @Context ZaehlungRelationalMapper zaehlungMapper, @Context VerkehrsbeziehungRelationalMapper fahrbeziehungMapper,
+            @Context QuerungsverkehrRelationalMapper querungsverkehrMapper, @Context LaengsverkehrRelationalMapper laengsverkehrMapper) {
         // Initialize collection if null
         if (analytics.getZaehlungen() == null) {
             analytics.setZaehlungen(new ArrayList<>());
@@ -78,7 +80,8 @@ public interface ZaehlstelleRelationalMapper {
             }
 
             // Map properties from elastic to analytics
-            analyticsZaehlung = zaehlungMapper.elastic2analytics(analyticsZaehlung, elasticZaehlung, fahrbeziehungMapper);
+            analyticsZaehlung = zaehlungMapper.elastic2analytics(analyticsZaehlung, elasticZaehlung, fahrbeziehungMapper, querungsverkehrMapper,
+                    laengsverkehrMapper);
             // Set bidirectional relationship
             analyticsZaehlung.setZaehlstelle(analytics);
             updatedZaehlungen.add(analyticsZaehlung);
@@ -90,7 +93,8 @@ public interface ZaehlstelleRelationalMapper {
     }
 
     Iterable<de.muenchen.dave.domain.analytics.Zaehlstelle> elasticlist2analyticslist(Iterable<? extends Zaehlstelle> elastic,
-            @Context ZaehlungRelationalMapper zaehlungMapper, @Context VerkehrsbeziehungRelationalMapper fahrbeziehungMapper);
+            @Context ZaehlungRelationalMapper zaehlungMapper, @Context VerkehrsbeziehungRelationalMapper fahrbeziehungMapper,
+            @Context QuerungsverkehrRelationalMapper querungsverkehrMapper, @Context LaengsverkehrRelationalMapper laengsverkehrMapper);
 
     Zaehlstelle analytics2elastic(de.muenchen.dave.domain.analytics.Zaehlstelle analytics);
 }
