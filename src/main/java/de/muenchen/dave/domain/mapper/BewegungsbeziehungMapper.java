@@ -8,7 +8,10 @@ import de.muenchen.dave.domain.elasticsearch.Bewegungsbeziehung;
 import de.muenchen.dave.domain.elasticsearch.Laengsverkehr;
 import de.muenchen.dave.domain.elasticsearch.Querungsverkehr;
 import de.muenchen.dave.domain.elasticsearch.Verkehrsbeziehung;
+import de.muenchen.dave.domain.elasticsearch.Hochrechnungsfaktor;
+import de.muenchen.dave.domain.dtos.HochrechnungsfaktorDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.SubclassExhaustiveStrategy;
 import org.mapstruct.SubclassMapping;
@@ -40,4 +43,10 @@ public interface BewegungsbeziehungMapper {
     Querungsverkehr dto2Bean(final BearbeiteQuerungsverkehrDTO dto);
 
     BearbeiteQuerungsverkehrDTO bean2Dto(final Querungsverkehr bean);
+
+    @Mapping(source = "entityVersion", target = "version")
+    Hochrechnungsfaktor dtoToHochrechnungsfaktor(final HochrechnungsfaktorDTO dto);
+
+    @Mapping(source = "version", target = "entityVersion")
+    HochrechnungsfaktorDTO hochrechnungsfaktorToDto(final Hochrechnungsfaktor bean);
 }
