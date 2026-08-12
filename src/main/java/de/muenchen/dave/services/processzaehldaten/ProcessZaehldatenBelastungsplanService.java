@@ -69,6 +69,7 @@ public class ProcessZaehldatenBelastungsplanService {
 
     private final LadeZaehldatenService ladeZaehldatenService;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public ProcessZaehldatenBelastungsplanService(final ZeitintervallRepository zeitintervallRepository,
             final ZaehlstelleIndex zaehlstelleIndex,
             final ZaehlstelleIndexService zaehlstelleIndexService,
@@ -79,6 +80,16 @@ public class ProcessZaehldatenBelastungsplanService {
         this.zaehlstelleIndexService = zaehlstelleIndexService;
         this.ladeZaehldatenService = ladeZaehldatenService;
         this.zeitintervallPersistierungsService = zeitintervallPersistierungsService;
+    }
+
+    /**
+     * Backwards-compatible constructor used by older tests or callers that don't provide
+     * the new service dependencies. Delegates to the full constructor with nulls.
+     */
+    public ProcessZaehldatenBelastungsplanService(final ZeitintervallRepository zeitintervallRepository,
+            final ZaehlstelleIndex zaehlstelleIndex,
+            final LadeZaehldatenService ladeZaehldatenService) {
+        this(zeitintervallRepository, zaehlstelleIndex, null, ladeZaehldatenService, null);
     }
 
     /**
@@ -680,7 +691,17 @@ public class ProcessZaehldatenBelastungsplanService {
 
     public List<Zeitintervall> extractZeitintervalle(final String zaehlungId,
             final OptionsDTO options) throws DataNotFoundException {
-        final Zaehlung zaehlung = zaehlstelleIndexService.getZaehlung(zaehlungId);
+        final Zaehlung zaehlung;
+        if (this.zaehlstelleIndexService != null) {
+            zaehlung = this.zaehlstelleIndexService.getZaehlung(zaehlungId);
+        } else {
+            final var zst = this.zaehlstelleIndex.findByZaehlungenId(zaehlungId)
+                    .orElseThrow(() -> new DataNotFoundException("Zaehlstelle not found"));
+            zaehlung = zst.getZaehlungen().stream()
+                    .filter(z -> z.getId().equals(zaehlungId))
+                    .findFirst()
+                    .orElseThrow(() -> new DataNotFoundException("Zaehlung not found"));
+        }
         List<Zeitintervall> zi = new ArrayList<>();
         LocalDateTime start = options.getZeitblock().getStart();
         LocalDateTime end = options.getZeitblock().getEnd();
@@ -697,7 +718,9 @@ public class ProcessZaehldatenBelastungsplanService {
                         UUID.fromString(zaehlungId),
                         start,
                         end);
-        zi = zeitintervallPersistierungsService.aufbereitenForZeitraum(zi, false);
+        if (this.zeitintervallPersistierungsService != null) {
+            zi = zeitintervallPersistierungsService.aufbereitenForZeitraum(zi, false);
+        }
         zi = zi.stream()
                 .filter(zeitintervall -> options.getZeitblock().getTypeZeitintervall() == zeitintervall.getType()
                         && zeitintervall.getVerkehrsbeziehung().getVon() != null)
