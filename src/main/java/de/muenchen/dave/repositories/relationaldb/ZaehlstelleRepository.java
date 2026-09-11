@@ -45,12 +45,8 @@ public interface ZaehlstelleRepository extends JpaRepository<Zaehlstelle, UUID> 
                     """)
     Page<Zaehlstelle> suggestSearch(String query, Pageable pageable);
 
-    @Query(value = """
-            select z from Zaehlstelle z
-            join z.zaehlungen za
-            where za.status in ('counting', 'correction', 'instructed')
-                    """)
-    Page<Zaehlstelle> findAllByStatus(String query, Pageable pageable);
+    @Query(value = "select z from Zaehlstelle z join z.zaehlungen za where lower(za.status) in ?1")
+    Page<Zaehlstelle> findAllByStatus(List<String> statusList, Pageable pageable);
 
     List<Zaehlstelle> findAll();
 

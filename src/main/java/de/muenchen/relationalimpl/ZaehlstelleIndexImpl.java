@@ -2,6 +2,7 @@ package de.muenchen.relationalimpl;
 
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
+import de.muenchen.dave.domain.enums.Status;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.repositories.relationaldb.ZaehlstelleRepository;
 import de.muenchen.dave.repositories.relationaldb.ZaehlungRepository;
@@ -104,8 +105,13 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         return zs.map(zaehlstelleMapper::analytics2elastic);
     }
 
-    public Page<Zaehlstelle> findAllByStatus(String query, Pageable pageable) {
-        Page<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByStatus(query, pageable);
+    public Page<Zaehlstelle> findAllByStatus(Status[] statusArray, Pageable pageable) {
+        // Build list of lower-cased status names and pass as collection to repository
+        final java.util.List<String> statuses = new java.util.ArrayList<>();
+        for (final Status s : statusArray) {
+            statuses.add(s.name().toLowerCase());
+        }
+        Page<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByStatus(statuses, pageable);
         return zs.map(zaehlstelleMapper::analytics2elastic);
     }
 

@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.dave.DaveBackendApplication;
@@ -89,7 +88,7 @@ public class ZaehlstelleIndexServiceSpringTest {
                 zaehlstelle1,
                 zaehlstelle2,
                 zaehlstelle3));
-        when(zaehlstelleIndex.findAllByStatus(anyString(), any())).thenReturn(resultFindAllByStatus);
+        when(zaehlstelleIndex.findAllByStatus(any(), any())).thenReturn(resultFindAllByStatus);
 
         final List<OpenZaehlungDTO> openZaehlungen = this.service.getOpenZaehlungen();
 
