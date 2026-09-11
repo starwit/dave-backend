@@ -106,19 +106,12 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
     }
 
     public Page<Zaehlstelle> findAllByStatus(Status[] statusArray, Pageable pageable) {
-        // JPA/SQL Syntax zum Suchen nach dem Status
-        // zaehlungen.status IN ('INSTRUCTED','CORRECTION','COUNTING')
-        // Wird anhand des Arrays status zusammengebaut
-        final StringBuilder query = new StringBuilder();
-        query.append("zaehlungen.status IN (");
-        for (int i = 0; i < statusArray.length; i++) {
-            query.append('\'').append(statusArray[i]).append('\'');
-            if (i < statusArray.length - 1) {
-                query.append(", ");
-            }
+        // Build list of lower-cased status names and pass as collection to repository
+        final java.util.List<String> statuses = new java.util.ArrayList<>();
+        for (final Status s : statusArray) {
+            statuses.add(s.name().toLowerCase());
         }
-        query.append(")");
-        Page<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByStatus(new String(query), pageable);
+        Page<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByStatus(statuses, pageable);
         return zs.map(zaehlstelleMapper::analytics2elastic);
     }
 

@@ -472,32 +472,13 @@ public class ZaehlstelleIndexService {
         final List<ExternalZaehlungDTO> zaehlungen = new ArrayList<>();
         final PageRequest pageable = PageRequest.of(0, 10000);
         try {
-            final String[] status = {
-                    Status.COUNTING.name(),
-                    Status.CORRECTION.name(),
-                    Status.INSTRUCTED.name()
-            };
-            final List<String> statusAsList = Arrays.asList(status);
-
-            // ElasticSearch Syntax zum Suchen nach dem Status
-            // zaehlungen.status:INSTRUCTED OR zaehlungen.status:CORRECTION OR zaehlungen.status:COUNTING
-            // Wird anhand des Arrays status zusammengebaut
-            final String or = " OR ";
-            final String field = "zaehlungen.status:";
-            final StringBuilder query = new StringBuilder();
-            for (int index = 0; index < status.length;) {
-                query.append(field);
-                query.append(status[index]);
-                index++;
-                if (index < status.length) {
-                    query.append(or);
-                }
-            }
+            final Status[] statusArray = { Status.COUNTING, Status.CORRECTION, Status.INSTRUCTED };
+            final List<String> statusAsList = Arrays.asList(statusArray).stream().map(Status::name).toList();
 
             // Da eine Liste mit Zaehlstellen zurück kommt, müssen alle relevanten Zäehlungen
             // anhand des Status herausgesucht werden. Ist eine Zählung relevant, so werden die
             // benötigten Daten aus der Zählstelle in das Objekt kopiert.
-            final List<Zaehlstelle> allByExternalStatus = this.zaehlstelleIndex.findAllByStatus(new String(query), pageable).toList();
+            final List<Zaehlstelle> allByExternalStatus = this.zaehlstelleIndex.findAllByStatus(statusArray, pageable).toList();
             allByExternalStatus.forEach(zaehlstelle -> {
                 this.zaehlstelleMapper.bean2ExternalDto(zaehlstelle).getZaehlungen().forEach(zaehlung -> {
                     // Wenn Fachadmin, dann anzeigen, sonst anhand der Dienstleisterkennung filtern
@@ -538,34 +519,14 @@ public class ZaehlstelleIndexService {
         final List<OpenZaehlungDTO> zaehlungen = new ArrayList<>();
         final PageRequest pageable = PageRequest.of(0, 10000);
         try {
-            final String[] status = {
-                    Status.CREATED.name(),
-                    Status.INSTRUCTED.name(),
-                    Status.COUNTING.name(),
-                    Status.ACCOMPLISHED.name(),
-                    Status.CORRECTION.name()
-            };
-            final List<String> statusAsList = Arrays.asList(status);
 
-            // ElasticSearch Syntax zum Suchen nach dem Status
-            // zaehlungen.status:INSTRUCTED OR zaehlungen.status:CORRECTION OR zaehlungen.status:COUNTING
-            // Wird anhand des Arrays status zusammengebaut
-            final String or = " OR ";
-            final String field = "zaehlungen.status:";
-            final StringBuilder query = new StringBuilder();
-            for (int index = 0; index < status.length;) {
-                query.append(field);
-                query.append(status[index]);
-                index++;
-                if (index < status.length) {
-                    query.append(or);
-                }
-            }
+            final Status[] statusArray = { Status.CREATED, Status.ACCOMPLISHED, Status.COUNTING, Status.CORRECTION, Status.INSTRUCTED };
+            final List<String> statusAsList = Arrays.asList(statusArray).stream().map(Status::name).toList();
 
             // Da eine Liste mit Zaehlstellen zurück kommt, müssen alle relevanten Zäehlungen
             // anhand des Status herausgesucht werden. Ist eine Zählung relevant, so werden die
             // benötigten Daten aus der Zählstelle in das Objekt kopiert.
-            final List<Zaehlstelle> allByStatus = this.zaehlstelleIndex.findAllByStatus(new String(query), pageable).toList();
+            final List<Zaehlstelle> allByStatus = this.zaehlstelleIndex.findAllByStatus(statusArray, pageable).toList();
             allByStatus.forEach(zaehlstelle -> {
                 zaehlstelle.getZaehlungen().forEach(zaehlung -> {
                     if (statusAsList.contains(zaehlung.getStatus())) {
