@@ -3,6 +3,7 @@ package de.muenchen.dave.repositories.elasticsearch;
 import de.muenchen.dave.configuration.CachingConfiguration;
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
+import de.muenchen.dave.domain.enums.Status;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.cache.annotation.CacheEvict;
@@ -65,7 +66,7 @@ public interface ZaehlstelleIndex {
 
     Page<Zaehlstelle> suggestSearch(String query, Pageable pageable);
 
-    Page<Zaehlstelle> findAllByStatus(String query, Pageable pageable);
+    Page<Zaehlstelle> findAllByStatus(Status[] statusArray, Pageable pageable);
 
     List<Zaehlstelle> findAll();
 

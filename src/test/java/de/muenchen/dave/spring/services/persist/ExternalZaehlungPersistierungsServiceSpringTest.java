@@ -90,7 +90,7 @@ class ExternalZaehlungPersistierungsServiceSpringTest {
         zst.getZaehlungen().get(0).setStatus(Status.COUNTING.name());
         indexResult.add(zst);
 
-        when(this.zaehlstelleIndex.findAllByStatus(anyString(), any())).thenReturn(new PageImpl<>(indexResult));
+        when(this.zaehlstelleIndex.findAllByStatus(any(), any())).thenReturn(new PageImpl<>(indexResult));
 
         final List<ExternalZaehlungDTO> zaehlungenForExternal = this.externalZaehlungPersistierungsService
                 .getZaehlungenForExternal(zst.getZaehlungen().get(0).getDienstleisterkennung(), false);

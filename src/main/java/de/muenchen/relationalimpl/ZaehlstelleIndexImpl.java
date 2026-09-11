@@ -2,6 +2,7 @@ package de.muenchen.relationalimpl;
 
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
+import de.muenchen.dave.domain.enums.Status;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import de.muenchen.dave.repositories.relationaldb.ZaehlstelleRepository;
 import de.muenchen.dave.repositories.relationaldb.ZaehlungRepository;
@@ -104,8 +105,20 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         return zs.map(zaehlstelleMapper::analytics2elastic);
     }
 
-    public Page<Zaehlstelle> findAllByStatus(String query, Pageable pageable) {
-        Page<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByStatus(query, pageable);
+    public Page<Zaehlstelle> findAllByStatus(Status[] statusArray, Pageable pageable) {
+        // JPA/SQL Syntax zum Suchen nach dem Status
+        // zaehlungen.status IN ('INSTRUCTED','CORRECTION','COUNTING')
+        // Wird anhand des Arrays status zusammengebaut
+        final StringBuilder query = new StringBuilder();
+        query.append("zaehlungen.status IN (");
+        for (int i = 0; i < statusArray.length; i++) {
+            query.append('\'').append(statusArray[i]).append('\'');
+            if (i < statusArray.length - 1) {
+                query.append(", ");
+            }
+        }
+        query.append(")");
+        Page<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByStatus(new String(query), pageable);
         return zs.map(zaehlstelleMapper::analytics2elastic);
     }
 
