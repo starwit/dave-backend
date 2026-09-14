@@ -18,6 +18,7 @@ import de.muenchen.dave.services.ZaehlstelleIndexService;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -140,10 +141,22 @@ public class ExternalDetectorService {
         log.debug("saveLatestDetections");
         //get all Knotenarme for Zaehlung and set counts to zero for all arms that are not included in the detection
         detections = addMissingKnotenarme(detections);
+        Instant startDateTime = Instant.now();
+        boolean saveAll = true;
 
         BackendIdDTO backendIdDto = new BackendIdDTO();
         for (DetectionDTO detection : detections) {
-            backendIdDto = saveDetection(detection);
+            if (detection.getStartUhrzeit().isBefore(startDateTime)) {
+                startDateTime = detection.getStartUhrzeit();
+                boolean exists = zeitintervallRepository.existsByZaehlungIdAndEndeUhrzeitGreaterThan(detection.getZaehlungId(), startDateTime.atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
+                saveAll = !exists;
+            }
+            if (saveAll) {
+                backendIdDto = saveDetection(detection);
+            } else {
+                log.info("Es existieren bereits Messpunkte für die Zählung {} nach dem Zeitpunkt {}, der Messpunkt wird nicht gespeichert.", detection.getZaehlungId(), startDateTime);
+                continue;
+            }
         }
         return backendIdDto;
     }
