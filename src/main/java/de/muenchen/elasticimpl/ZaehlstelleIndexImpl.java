@@ -2,6 +2,7 @@ package de.muenchen.elasticimpl;
 
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
+import de.muenchen.dave.domain.enums.Status;
 import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import java.util.List;
 import java.util.Optional;
@@ -66,8 +67,22 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         return zaehlstelleIndexElasticRepository.suggestSearch(query, pageable);
     }
 
-    public Page<Zaehlstelle> findAllByStatus(String query, Pageable pageable) {
-        return zaehlstelleIndexElasticRepository.findAllByStatus(query, pageable);
+    public Page<Zaehlstelle> findAllByStatus(Status[] statusArray, Pageable pageable) {
+        // ElasticSearch Syntax zum Suchen nach dem Status
+        // zaehlungen.status:INSTRUCTED OR zaehlungen.status:CORRECTION OR zaehlungen.status:COUNTING
+        // Wird anhand des Arrays status zusammengebaut
+        final String or = " OR ";
+        final String field = "zaehlungen.status:";
+        final StringBuilder query = new StringBuilder();
+        for (int index = 0; index < statusArray.length;) {
+            query.append(field);
+            query.append(statusArray[index]);
+            index++;
+            if (index < statusArray.length) {
+                query.append(or);
+            }
+        }
+        return zaehlstelleIndexElasticRepository.findAllByStatus(new String(query), pageable);
     }
 
     public List<Zaehlstelle> findAll() {
