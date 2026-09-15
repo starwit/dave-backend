@@ -45,6 +45,10 @@ public interface ZeitintervallRepository extends JpaRepository<Zeitintervall, UU
 
     List<Zeitintervall> findByZaehlungId(final UUID zaehlungId, final Sort sort);
 
+    boolean existsByZaehlungIdAndEndeUhrzeitGreaterThan(
+            final UUID zaehlungId,
+            final LocalDateTime startUhrzeit);
+
     List<Zeitintervall> findByZaehlungIdAndStartUhrzeitGreaterThanEqualAndEndeUhrzeitLessThanEqualAndFahrbeziehungVonNotNullAndTypeOrderBySortingIndexAsc(
             final UUID zaehlungId,
             final LocalDateTime startUhrzeit,
