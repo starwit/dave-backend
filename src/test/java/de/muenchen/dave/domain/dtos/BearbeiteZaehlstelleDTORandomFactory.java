@@ -9,7 +9,6 @@ import de.muenchen.dave.domain.dtos.bearbeiten.BearbeiteZaehlstelleDTO;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 public class BearbeiteZaehlstelleDTORandomFactory {
 
@@ -33,7 +32,6 @@ public class BearbeiteZaehlstelleDTORandomFactory {
         dto.setStadtbezirkNummer(Ints.tryParse(x.get(BEZIRKNUMMER)));
         dto.setLat(Doubles.tryParse(x.get(LAT)));
         dto.setLng(Doubles.tryParse(x.get(LNG)));
-        dto.setPunkt(new GeoPoint(Doubles.tryParse(x.get(LAT)), Doubles.tryParse(x.get(LNG))));
         dto.setZaehlungen(Collections.singletonList(BearbeiteZaehlungDTORandomFactory.getOne()));
         dto.setCustomSuchwoerter(Collections.singletonList(Faker.instance().animal().name()));
 
