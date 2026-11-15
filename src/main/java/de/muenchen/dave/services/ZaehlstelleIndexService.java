@@ -87,7 +87,15 @@ public class ZaehlstelleIndexService {
                 log.error(message);
                 throw new PlausibilityException(message);
             }
-            backendIdDto.setId(this.erstelleZaehlstelle(zaehlstelle));
+            final var zaehlstellenAtLocation = zaehlstelleIndex.findByLocation(zaehlstelle.getLat(), zaehlstelle.getLng());
+            if (!zaehlstellenAtLocation.isEmpty()) {
+                final var existingZaehlstelle = zaehlstellenAtLocation.get(0);
+                log.info("Am Standort ({}, {}) existiert bereits die Zählstelle {} ({}). Diese wird aktualisiert.",
+                        zaehlstelle.getLat(), zaehlstelle.getLng(), existingZaehlstelle.getNummer(), existingZaehlstelle.getId());
+                backendIdDto.setId(this.erneuereZaehlstelle(zaehlstelle, existingZaehlstelle.getId()));
+            } else {
+                backendIdDto.setId(this.erstelleZaehlstelle(zaehlstelle));
+            }
         } else {
             backendIdDto.setId(this.erneuereZaehlstelle(zaehlstelle, zaehlstelle.getId()));
         }

@@ -57,6 +57,9 @@ public interface ZaehlstelleRepository extends JpaRepository<Zaehlstelle, UUID> 
 
     Optional<Zaehlstelle> findByNummer(String nummer);
 
+    @Query(value = "select z from Zaehlstelle z where z.punkt.lat between ?1 and ?2 and z.punkt.lon between ?3 and ?4")
+    List<Zaehlstelle> findAllByPunktInBoundingBox(double minLat, double maxLat, double minLon, double maxLon);
+
     @Query(value = "select z from Zaehlstelle z join z.zaehlungen za where za.status = ?1")
     List<Zaehlstelle> findAllByZaehlungenStatus(String status);
 

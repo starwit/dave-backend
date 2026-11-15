@@ -101,6 +101,16 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         return zaehlstelleIndexElasticRepository.findByNummer(nummer);
     }
 
+    public List<Zaehlstelle> findByLocation(double lat, double lng) {
+        final double dLat = ZaehlstelleIndex.latToleranceDegrees();
+        final double dLng = ZaehlstelleIndex.lngToleranceDegrees(lat);
+        return zaehlstelleIndexElasticRepository.findAllByPunktInBoundingBox(
+                lat + dLat,
+                lng - dLng,
+                lat - dLat,
+                lng + dLng);
+    }
+
     public List<Zaehlstelle> findAllByZaehlungenStatus(String status) {
         return zaehlstelleIndexElasticRepository.findAllByZaehlungenStatus(status);
     }

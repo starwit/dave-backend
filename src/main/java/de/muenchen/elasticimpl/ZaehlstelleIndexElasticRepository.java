@@ -100,6 +100,17 @@ public interface ZaehlstelleIndexElasticRepository extends ElasticsearchReposito
 
     Optional<Zaehlstelle> findByNummer(String nummer);
 
+    @Query(
+        "{\"geo_bounding_box\": {" +
+                "\"punkt\": {" +
+                "\"top_left\": {\"lat\": ?0, \"lon\": ?1}," +
+                "\"bottom_right\": {\"lat\": ?2, \"lon\": ?3}" +
+                "}" +
+                "}" +
+                "}"
+    )
+    List<Zaehlstelle> findAllByPunktInBoundingBox(double top, double left, double bottom, double right);
+
     List<Zaehlstelle> findAllByZaehlungenStatus(String status);
 
     List<Zaehlstelle> findAllByZaehlungenJahr(String jahr);

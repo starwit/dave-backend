@@ -12,6 +12,35 @@ import org.springframework.data.domain.Pageable;
 
 public interface ZaehlstelleIndex {
 
+    /**
+     * Toleranz in Metern, innerhalb der {@link #findByLocation(double, double)} eine Zählstelle als
+     * "am selben Ort" betrachtet. Ein exakter Vergleich der Koordinaten ist nicht möglich, da
+     * Gleitkommazahlen beim Serialisieren (JSON) und Speichern (Elasticsearch kodiert geo_point
+     * verlustbehaftet) leicht abweichen können.
+     */
+    double LOCATION_TOLERANCE_METERS = 5.0;
+
+    /** Länge eines Breitengrads in Metern (Näherung, WGS84). */
+    double METERS_PER_DEGREE_LAT = 111_320.0;
+
+    /**
+     * @return Toleranz in Grad Breite, entsprechend {@link #LOCATION_TOLERANCE_METERS}.
+     */
+    static double latToleranceDegrees() {
+        return LOCATION_TOLERANCE_METERS / METERS_PER_DEGREE_LAT;
+    }
+
+    /**
+     * Ein Längengrad wird zu den Polen hin kürzer (Faktor cos(lat)), daher hängt die Toleranz in Grad
+     * Länge vom Breitengrad ab.
+     *
+     * @param lat Breitengrad, an dem die Toleranz gelten soll
+     * @return Toleranz in Grad Länge, entsprechend {@link #LOCATION_TOLERANCE_METERS}.
+     */
+    static double lngToleranceDegrees(final double lat) {
+        return LOCATION_TOLERANCE_METERS / (METERS_PER_DEGREE_LAT * Math.cos(Math.toRadians(lat)));
+    }
+
     Zaehlung initializeZaehlung(Zaehlung zaehlung, String zaehlstelleId);
 
     @CacheEvict(
@@ -75,6 +104,16 @@ public interface ZaehlstelleIndex {
     List<Zaehlstelle> findAllByNummerStartsWithAndStadtbezirkNummer(String nummer, Integer stadtbezirksnummer);
 
     Optional<Zaehlstelle> findByNummer(String nummer);
+
+    /**
+     * Findet alle Zählstellen, deren Koordinate höchstens {@link #LOCATION_TOLERANCE_METERS} in
+     * Nord-Süd- bzw. Ost-West-Richtung von der übergebenen Koordinate entfernt liegt (Bounding-Box).
+     *
+     * @param lat Breitengrad (WGS84)
+     * @param lng Längengrad (WGS84)
+     * @return gefundene Zählstellen, ggf. leer
+     */
+    List<Zaehlstelle> findByLocation(double lat, double lng);
 
     List<Zaehlstelle> findAllByZaehlungenStatus(String status);
 
