@@ -81,19 +81,30 @@ public class ZaehlstelleIndexService {
             throws BrokenInfrastructureException, DataNotFoundException, PlausibilityException {
         final var backendIdDto = new BackendIdDTO();
         if (StringUtils.isEmpty(zaehlstelle.getId())) {
-            final var alreadySavedZaehlstelle = zaehlstelleIndex.findByNummer(zaehlstelle.getNummer());
-            if (alreadySavedZaehlstelle.isPresent()) {
-                final var message = "Es existiert bereits eine Zählstelle mit der Nummer " + zaehlstelle.getNummer();
-                log.error(message);
-                throw new PlausibilityException(message);
+            if (StringUtils.isNotBlank(zaehlstelle.getNummer())) {
+                final var alreadySavedZaehlstelle = zaehlstelleIndex.findByNummer(zaehlstelle.getNummer());
+                if (alreadySavedZaehlstelle.isPresent()) {
+                    final var message = "Es existiert bereits eine Zählstelle mit der Nummer " + zaehlstelle.getNummer();
+                    log.error(message);
+                    throw new PlausibilityException(message);
+                }
             }
             final var zaehlstellenAtLocation = zaehlstelleIndex.findByLocation(zaehlstelle.getLat(), zaehlstelle.getLng());
             if (!zaehlstellenAtLocation.isEmpty()) {
                 final var existingZaehlstelle = zaehlstellenAtLocation.get(0);
                 log.info("Am Standort ({}, {}) existiert bereits die Zählstelle {} ({}). Diese wird aktualisiert.",
                         zaehlstelle.getLat(), zaehlstelle.getLng(), existingZaehlstelle.getNummer(), existingZaehlstelle.getId());
+                if (StringUtils.isBlank(zaehlstelle.getNummer())) {
+                    // Nummer der vorhandenen Zählstelle beibehalten
+                    zaehlstelle.setNummer(existingZaehlstelle.getNummer());
+                }
                 backendIdDto.setId(this.erneuereZaehlstelle(zaehlstelle, existingZaehlstelle.getId()));
             } else {
+                if (StringUtils.isBlank(zaehlstelle.getNummer())) {
+                    zaehlstelle.setNummer(this.generiereZaehlstellennummer(zaehlstelle.getStadtbezirkNummer()));
+                    log.info("Für die Zählstelle am Standort ({}, {}) wurde die Nummer {} generiert.",
+                            zaehlstelle.getLat(), zaehlstelle.getLng(), zaehlstelle.getNummer());
+                }
                 backendIdDto.setId(this.erstelleZaehlstelle(zaehlstelle));
             }
         } else {
@@ -435,6 +446,18 @@ public class ZaehlstelleIndexService {
 
     public BearbeiteZaehlstelleDTO readEditZaehlstelleDTO(final String zaehlstelleId) throws DataNotFoundException {
         return this.zaehlstelleMapper.bean2bearbeiteDto(this.getZaehlstelle(zaehlstelleId), stadtbezirkMapper);
+    }
+
+    /**
+     * Generiert eine Zählstellennummer, wenn keine vorgegeben wurde. Da das Stadtbezirksviertel im
+     * Backend nicht bekannt ist, wird als Viertel "00" verwendet (z. B. Stadtbezirk 4 → 40001,
+     * 40002, ...). Automatisch erzeugte Nummern sind dadurch erkennbar.
+     *
+     * @param stadtbezirksnummer Nummer des Stadtbezirks der Zaehlstelle
+     * @return naechste freie Zaehlstellennummer mit Viertel "00"
+     */
+    private String generiereZaehlstellennummer(final int stadtbezirksnummer) {
+        return this.getNextZaehlstellennummer(stadtbezirksnummer + "00", stadtbezirksnummer).getNummer();
     }
 
     /**
