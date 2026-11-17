@@ -136,6 +136,7 @@ public class ExternalDetectorService {
                 .anyMatch(d -> d.getVon() == von && d.getNach() == nach);
     }
 
+    @Transactional
     public BackendIdDTO saveLatestDetections(List<DetectionDTO> detections) throws BrokenInfrastructureException, DataNotFoundException {
         log.debug("saveLatestDetections");
         //get all Knotenarme for Zaehlung and set counts to zero for all arms that are not included in the detection
