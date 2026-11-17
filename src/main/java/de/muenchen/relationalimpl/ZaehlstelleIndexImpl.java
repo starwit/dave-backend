@@ -152,6 +152,11 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         return zs.stream().map(zaehlstelleMapper::analytics2elastic).toList();
     }
 
+    public List<Zaehlstelle> findAllByZaehlungenProjektNummerStartsWith(String prefix) {
+        List<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByZaehlungenProjektNummerStartsWith(prefix);
+        return zs.stream().map(zaehlstelleMapper::analytics2elastic).toList();
+    }
+
     public List<Zaehlstelle> findAllByZaehlungenJahr(String jahr) {
         List<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByZaehlungenJahr(jahr);
         return zs.stream().map(zaehlstelleMapper::analytics2elastic).toList();

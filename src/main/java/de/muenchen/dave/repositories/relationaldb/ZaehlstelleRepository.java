@@ -63,6 +63,9 @@ public interface ZaehlstelleRepository extends JpaRepository<Zaehlstelle, UUID> 
     @Query(value = "select z from Zaehlstelle z join z.zaehlungen za where za.status = ?1")
     List<Zaehlstelle> findAllByZaehlungenStatus(String status);
 
+    @Query(value = "select distinct z from Zaehlstelle z join z.zaehlungen za where za.projektNummer like concat(?1, '%')")
+    List<Zaehlstelle> findAllByZaehlungenProjektNummerStartsWith(String prefix);
+
     @Query(value = "select z from Zaehlstelle z join z.zaehlungen za where za.jahr = ?1 order by z.id")
     List<Zaehlstelle> findAllByZaehlungenJahr(String jahr);
 

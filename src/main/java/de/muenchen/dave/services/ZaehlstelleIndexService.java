@@ -4,6 +4,7 @@ import de.muenchen.dave.configuration.CachingConfiguration;
 import de.muenchen.dave.domain.dtos.LeseZaehlstelleDTO;
 import de.muenchen.dave.domain.dtos.NextZaehlstellennummerDTO;
 import de.muenchen.dave.domain.dtos.OpenZaehlungDTO;
+import de.muenchen.dave.domain.dtos.ZaehlungByProjektNummerDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BackendIdDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BearbeiteZaehlstelleDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BearbeiteZaehlungDTO;
@@ -581,6 +582,39 @@ public class ZaehlstelleIndexService {
         }
 
         return zaehlungen;
+    }
+
+    /**
+     * Ermittelt die Zählungen, deren Projektnummer mit dem Präfix beginnt, unabhängig von Status und Zählstelle. Ein
+     * externes System, das seine Zählungen anhand selbst vergebener Projektnummern verwaltet, findet sie so wieder,
+     * auch wenn sich der Standort seiner Zählstelle geändert hat.
+     *
+     * @param prefix Anfang der Projektnummer, darf nicht leer sein
+     * @return die Zählungen mit ihrer Zählstelle
+     * @throws BrokenInfrastructureException Bei Fehler in Verbindung mit der Datenbank
+     */
+    public List<ZaehlungByProjektNummerDTO> getZaehlungenByProjektNummerPrefix(final String prefix) throws BrokenInfrastructureException {
+        if (StringUtils.isBlank(prefix)) {
+            throw new IllegalArgumentException("Der Präfix der Projektnummer darf nicht leer sein.");
+        }
+        try {
+            return this.zaehlstelleIndex.findAllByZaehlungenProjektNummerStartsWith(prefix).stream()
+                    .flatMap(zaehlstelle -> CollectionUtils.emptyIfNull(zaehlstelle.getZaehlungen()).stream()
+                            // die Zählstelle kann weitere Zählungen haben, die nicht passen
+                            .filter(zaehlung -> StringUtils.startsWith(zaehlung.getProjektNummer(), prefix))
+                            .map(zaehlung -> {
+                                final ZaehlungByProjektNummerDTO dto = new ZaehlungByProjektNummerDTO();
+                                dto.setId(zaehlung.getId());
+                                dto.setProjektNummer(zaehlung.getProjektNummer());
+                                dto.setStatus(zaehlung.getStatus());
+                                dto.setZaehlstelleId(zaehlstelle.getId());
+                                return dto;
+                            }))
+                    .toList();
+        } catch (final DataAccessResourceFailureException e) {
+            log.error("cannot access elasticsearch index on {}:{}", this.elasticsearchHost, this.elasticsearchPort);
+            throw new BrokenInfrastructureException();
+        }
     }
 
     /**

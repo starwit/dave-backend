@@ -115,6 +115,17 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         return zaehlstelleIndexElasticRepository.findAllByZaehlungenStatus(status);
     }
 
+    /**
+     * Filtert in Java statt in Elasticsearch: projektNummer ist ein analysiertes Textfeld, eine Präfixsuche darauf
+     * vergleicht einzelne Tokens statt der ganzen Nummer.
+     */
+    public List<Zaehlstelle> findAllByZaehlungenProjektNummerStartsWith(String prefix) {
+        return zaehlstelleIndexElasticRepository.findAll().stream()
+                .filter(zaehlstelle -> zaehlstelle.getZaehlungen() != null && zaehlstelle.getZaehlungen().stream()
+                        .anyMatch(zaehlung -> zaehlung.getProjektNummer() != null && zaehlung.getProjektNummer().startsWith(prefix)))
+                .toList();
+    }
+
     public List<Zaehlstelle> findAllByZaehlungenJahr(String jahr) {
         return zaehlstelleIndexElasticRepository.findAllByZaehlungenJahr(jahr);
     }

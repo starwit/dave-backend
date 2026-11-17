@@ -117,6 +117,12 @@ public interface ZaehlstelleIndex {
 
     List<Zaehlstelle> findAllByZaehlungenStatus(String status);
 
+    /**
+     * @param prefix Anfang der Projektnummer
+     * @return alle Zählstellen mit mindestens einer Zählung, deren Projektnummer so beginnt, mit allen ihren Zählungen
+     */
+    List<Zaehlstelle> findAllByZaehlungenProjektNummerStartsWith(String prefix);
+
     List<Zaehlstelle> findAllByZaehlungenJahr(String jahr);
 
     List<Zaehlstelle> findAllByZaehlungenUnreadMessagesMobilitaetsreferatTrue();
