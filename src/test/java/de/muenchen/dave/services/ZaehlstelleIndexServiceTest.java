@@ -4,23 +4,64 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import de.muenchen.dave.domain.dtos.ZaehlungByProjektNummerDTO;
 import de.muenchen.dave.domain.elasticsearch.Zaehlstelle;
 import de.muenchen.dave.domain.elasticsearch.Zaehlung;
 import de.muenchen.dave.domain.enums.Status;
+import de.muenchen.dave.repositories.elasticsearch.ZaehlstelleIndex;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class ZaehlstelleIndexServiceTest {
+
+    private final ZaehlstelleIndex zaehlstelleIndex = Mockito.mock(ZaehlstelleIndex.class);
 
     private final ZaehlstelleIndexService service = new ZaehlstelleIndexService(
             null,
             null,
             null,
             null,
-            null,
+            zaehlstelleIndex,
             null,
             null);
+
+    private static Zaehlung zaehlung(final String id, final String projektNummer, final String status) {
+        final Zaehlung zaehlung = new Zaehlung();
+        zaehlung.setId(id);
+        zaehlung.setProjektNummer(projektNummer);
+        zaehlung.setStatus(status);
+        return zaehlung;
+    }
+
+    @Test
+    public void testGetZaehlungenByProjektNummerPrefix() throws Exception {
+        final Zaehlstelle zs = new Zaehlstelle();
+        zs.setId("zs");
+        // eine Zählstelle kann Zählungen mehrerer Systeme haben
+        zs.setZaehlungen(new ArrayList<>(List.of(
+                zaehlung("z1", "cronist-1", Status.CREATED.name()),
+                zaehlung("z2", "other-1", Status.ACTIVE.name()),
+                zaehlung("z3", null, Status.ACTIVE.name()))));
+        Mockito.when(zaehlstelleIndex.findAllByZaehlungenProjektNummerStartsWith("cronist-")).thenReturn(List.of(zs));
+
+        final List<ZaehlungByProjektNummerDTO> result = this.service.getZaehlungenByProjektNummerPrefix("cronist-");
+
+        assertThat(result.size(), is(equalTo(1)));
+        assertThat(result.get(0).getId(), is(equalTo("z1")));
+        assertThat(result.get(0).getProjektNummer(), is(equalTo("cronist-1")));
+        assertThat(result.get(0).getStatus(), is(equalTo(Status.CREATED.name())));
+        assertThat(result.get(0).getZaehlstelleId(), is(equalTo("zs")));
+    }
+
+    @Test
+    public void testGetZaehlungenByProjektNummerPrefixRejectsEmptyPrefix() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> this.service.getZaehlungenByProjektNummerPrefix(" "));
+        Mockito.verifyNoInteractions(zaehlstelleIndex);
+    }
 
     @Test
     public void testUpdateZaehlstelleWithZaehlung() {

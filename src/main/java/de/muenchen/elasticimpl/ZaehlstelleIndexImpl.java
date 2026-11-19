@@ -101,8 +101,30 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         return zaehlstelleIndexElasticRepository.findByNummer(nummer);
     }
 
+    public List<Zaehlstelle> findByLocation(double lat, double lng) {
+        final double dLat = ZaehlstelleIndex.latToleranceDegrees();
+        final double dLng = ZaehlstelleIndex.lngToleranceDegrees(lat);
+        return zaehlstelleIndexElasticRepository.findAllByPunktInBoundingBox(
+                lat + dLat,
+                lng - dLng,
+                lat - dLat,
+                lng + dLng);
+    }
+
     public List<Zaehlstelle> findAllByZaehlungenStatus(String status) {
         return zaehlstelleIndexElasticRepository.findAllByZaehlungenStatus(status);
+    }
+
+    /**
+     * Filtert in Java statt in Elasticsearch: projektNummer ist ein analysiertes Textfeld, eine
+     * Präfixsuche darauf
+     * vergleicht einzelne Tokens statt der ganzen Nummer.
+     */
+    public List<Zaehlstelle> findAllByZaehlungenProjektNummerStartsWith(String prefix) {
+        return zaehlstelleIndexElasticRepository.findAll().stream()
+                .filter(zaehlstelle -> zaehlstelle.getZaehlungen() != null && zaehlstelle.getZaehlungen().stream()
+                        .anyMatch(zaehlung -> zaehlung.getProjektNummer() != null && zaehlung.getProjektNummer().startsWith(prefix)))
+                .toList();
     }
 
     public List<Zaehlstelle> findAllByZaehlungenJahr(String jahr) {

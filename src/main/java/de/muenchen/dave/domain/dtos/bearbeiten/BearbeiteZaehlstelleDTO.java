@@ -2,7 +2,6 @@ package de.muenchen.dave.domain.dtos.bearbeiten;
 
 import java.util.List;
 import lombok.Data;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 @Data
 public class BearbeiteZaehlstelleDTO {
@@ -14,8 +13,6 @@ public class BearbeiteZaehlstelleDTO {
     int stadtbezirkNummer;
 
     String stadtbezirk;
-
-    GeoPoint punkt;
 
     double lat;
 

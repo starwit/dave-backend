@@ -136,8 +136,24 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
         return zs.map(zaehlstelleMapper::analytics2elastic);
     }
 
+    public List<Zaehlstelle> findByLocation(double lat, double lng) {
+        final double dLat = ZaehlstelleIndex.latToleranceDegrees();
+        final double dLng = ZaehlstelleIndex.lngToleranceDegrees(lat);
+        List<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByPunktInBoundingBox(
+                lat - dLat,
+                lat + dLat,
+                lng - dLng,
+                lng + dLng);
+        return zs.stream().map(zaehlstelleMapper::analytics2elastic).toList();
+    }
+
     public List<Zaehlstelle> findAllByZaehlungenStatus(String status) {
         List<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByZaehlungenStatus(status);
+        return zs.stream().map(zaehlstelleMapper::analytics2elastic).toList();
+    }
+
+    public List<Zaehlstelle> findAllByZaehlungenProjektNummerStartsWith(String prefix) {
+        List<de.muenchen.dave.domain.analytics.Zaehlstelle> zs = zaehlstelleRepository.findAllByZaehlungenProjektNummerStartsWith(prefix);
         return zs.stream().map(zaehlstelleMapper::analytics2elastic).toList();
     }
 

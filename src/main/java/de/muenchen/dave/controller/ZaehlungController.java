@@ -2,6 +2,7 @@ package de.muenchen.dave.controller;
 
 import de.muenchen.dave.domain.dtos.DienstleisterDTO;
 import de.muenchen.dave.domain.dtos.OpenZaehlungDTO;
+import de.muenchen.dave.domain.dtos.ZaehlungByProjektNummerDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BackendIdDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BearbeiteZaehlungDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.UpdateStatusDTO;
@@ -18,6 +19,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +60,29 @@ public class ZaehlungController {
             final List<OpenZaehlungDTO> openZaehlungDTOS = this.internalZaehlungPersistierungsService.loadAllOpenZaehlungen();
             log.debug("Alle offenene Zählungen wurden geladen");
             return ResponseEntity.ok(openZaehlungDTOS);
+        } catch (final BrokenInfrastructureException bie) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Zählungen anhand des Anfangs ihrer Projektnummer, z. B. alle eines externen Systems, das seine
+     * Zählungen mit
+     * eigenen Projektnummern anlegt.
+     *
+     * @param prefix Anfang der Projektnummer, darf nicht leer sein
+     * @return die Zählungen mit ihrer Zählstelle
+     */
+    @GetMapping(value = "/byProjektNummerPrefix", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole(T(de.muenchen.dave.security.AuthoritiesEnum).FACHADMIN.name())")
+    public ResponseEntity<List<ZaehlungByProjektNummerDTO>> loadZaehlungenByProjektNummerPrefix(
+            @RequestParam(value = "prefix") final String prefix) {
+        log.debug("Lade Zählungen mit Projektnummer {}*", prefix);
+        if (StringUtils.isBlank(prefix)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Präfix der Projektnummer darf nicht leer sein.");
+        }
+        try {
+            return ResponseEntity.ok(this.internalZaehlungPersistierungsService.loadZaehlungenByProjektNummerPrefix(prefix));
         } catch (final BrokenInfrastructureException bie) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }

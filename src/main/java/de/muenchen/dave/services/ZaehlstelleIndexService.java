@@ -4,6 +4,7 @@ import de.muenchen.dave.configuration.CachingConfiguration;
 import de.muenchen.dave.domain.dtos.LeseZaehlstelleDTO;
 import de.muenchen.dave.domain.dtos.NextZaehlstellennummerDTO;
 import de.muenchen.dave.domain.dtos.OpenZaehlungDTO;
+import de.muenchen.dave.domain.dtos.ZaehlungByProjektNummerDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BackendIdDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BearbeiteZaehlstelleDTO;
 import de.muenchen.dave.domain.dtos.bearbeiten.BearbeiteZaehlungDTO;
@@ -81,13 +82,32 @@ public class ZaehlstelleIndexService {
             throws BrokenInfrastructureException, DataNotFoundException, PlausibilityException {
         final var backendIdDto = new BackendIdDTO();
         if (StringUtils.isEmpty(zaehlstelle.getId())) {
-            final var alreadySavedZaehlstelle = zaehlstelleIndex.findByNummer(zaehlstelle.getNummer());
-            if (alreadySavedZaehlstelle.isPresent()) {
-                final var message = "Es existiert bereits eine Zählstelle mit der Nummer " + zaehlstelle.getNummer();
-                log.error(message);
-                throw new PlausibilityException(message);
+            if (StringUtils.isNotBlank(zaehlstelle.getNummer())) {
+                final var alreadySavedZaehlstelle = zaehlstelleIndex.findByNummer(zaehlstelle.getNummer());
+                if (alreadySavedZaehlstelle.isPresent()) {
+                    final var message = "Es existiert bereits eine Zählstelle mit der Nummer " + zaehlstelle.getNummer();
+                    log.error(message);
+                    throw new PlausibilityException(message);
+                }
             }
-            backendIdDto.setId(this.erstelleZaehlstelle(zaehlstelle));
+            final var zaehlstellenAtLocation = zaehlstelleIndex.findByLocation(zaehlstelle.getLat(), zaehlstelle.getLng());
+            if (!zaehlstellenAtLocation.isEmpty()) {
+                final var existingZaehlstelle = zaehlstellenAtLocation.get(0);
+                log.info("Am Standort ({}, {}) existiert bereits die Zählstelle {} ({}). Diese wird aktualisiert.",
+                        zaehlstelle.getLat(), zaehlstelle.getLng(), existingZaehlstelle.getNummer(), existingZaehlstelle.getId());
+                if (StringUtils.isBlank(zaehlstelle.getNummer())) {
+                    // Nummer der vorhandenen Zählstelle beibehalten
+                    zaehlstelle.setNummer(existingZaehlstelle.getNummer());
+                }
+                backendIdDto.setId(this.erneuereZaehlstelle(zaehlstelle, existingZaehlstelle.getId()));
+            } else {
+                if (StringUtils.isBlank(zaehlstelle.getNummer())) {
+                    zaehlstelle.setNummer(this.generiereZaehlstellennummer(zaehlstelle.getStadtbezirkNummer()));
+                    log.info("Für die Zählstelle am Standort ({}, {}) wurde die Nummer {} generiert.",
+                            zaehlstelle.getLat(), zaehlstelle.getLng(), zaehlstelle.getNummer());
+                }
+                backendIdDto.setId(this.erstelleZaehlstelle(zaehlstelle));
+            }
         } else {
             backendIdDto.setId(this.erneuereZaehlstelle(zaehlstelle, zaehlstelle.getId()));
         }
@@ -430,6 +450,18 @@ public class ZaehlstelleIndexService {
     }
 
     /**
+     * Generiert eine Zählstellennummer, wenn keine vorgegeben wurde. Da das Stadtbezirksviertel im
+     * Backend nicht bekannt ist, wird als Viertel "00" verwendet (z. B. Stadtbezirk 4 → 40001,
+     * 40002, ...). Automatisch erzeugte Nummern sind dadurch erkennbar.
+     *
+     * @param stadtbezirksnummer Nummer des Stadtbezirks der Zaehlstelle
+     * @return naechste freie Zaehlstellennummer mit Viertel "00"
+     */
+    private String generiereZaehlstellennummer(final int stadtbezirksnummer) {
+        return this.getNextZaehlstellennummer(stadtbezirksnummer + "00", stadtbezirksnummer).getNummer();
+    }
+
+    /**
      * Aufbau der Zaehlstellennummer Stelle 1 und 2: Stadtbezirksnummer ohne fuehrende 0 Stelle 3 und 4:
      * Stadtbezirksviertelnummer Stelle 5 und 6: laufende
      * Nummer (wird aus DB geholt)
@@ -550,6 +582,41 @@ public class ZaehlstelleIndexService {
         }
 
         return zaehlungen;
+    }
+
+    /**
+     * Ermittelt die Zählungen, deren Projektnummer mit dem Präfix beginnt, unabhängig von Status und
+     * Zählstelle. Ein
+     * externes System, das seine Zählungen anhand selbst vergebener Projektnummern verwaltet, findet
+     * sie so wieder,
+     * auch wenn sich der Standort seiner Zählstelle geändert hat.
+     *
+     * @param prefix Anfang der Projektnummer, darf nicht leer sein
+     * @return die Zählungen mit ihrer Zählstelle
+     * @throws BrokenInfrastructureException Bei Fehler in Verbindung mit der Datenbank
+     */
+    public List<ZaehlungByProjektNummerDTO> getZaehlungenByProjektNummerPrefix(final String prefix) throws BrokenInfrastructureException {
+        if (StringUtils.isBlank(prefix)) {
+            throw new IllegalArgumentException("Der Präfix der Projektnummer darf nicht leer sein.");
+        }
+        try {
+            return this.zaehlstelleIndex.findAllByZaehlungenProjektNummerStartsWith(prefix).stream()
+                    .flatMap(zaehlstelle -> CollectionUtils.emptyIfNull(zaehlstelle.getZaehlungen()).stream()
+                            // die Zählstelle kann weitere Zählungen haben, die nicht passen
+                            .filter(zaehlung -> StringUtils.startsWith(zaehlung.getProjektNummer(), prefix))
+                            .map(zaehlung -> {
+                                final ZaehlungByProjektNummerDTO dto = new ZaehlungByProjektNummerDTO();
+                                dto.setId(zaehlung.getId());
+                                dto.setProjektNummer(zaehlung.getProjektNummer());
+                                dto.setStatus(zaehlung.getStatus());
+                                dto.setZaehlstelleId(zaehlstelle.getId());
+                                return dto;
+                            }))
+                    .toList();
+        } catch (final DataAccessResourceFailureException e) {
+            log.error("cannot access elasticsearch index on {}:{}", this.elasticsearchHost, this.elasticsearchPort);
+            throw new BrokenInfrastructureException();
+        }
     }
 
     /**

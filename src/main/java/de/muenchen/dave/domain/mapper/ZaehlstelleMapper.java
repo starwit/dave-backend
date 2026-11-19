@@ -28,20 +28,27 @@ import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ZaehlstelleMapper {
 
+    @Mapping(target = "lat", ignore = true)
+    @Mapping(target = "lng", ignore = true)
     BearbeiteZaehlstelleDTO bean2bearbeiteDto(Zaehlstelle bean, @Context StadtbezirkMapper stadtbezirkMapper);
+
+    @AfterMapping
+    default void toBearbeiteZaehlstelleDto(@MappingTarget BearbeiteZaehlstelleDTO dto, Zaehlstelle bean) {
+        if (bean.getPunkt() != null) {
+            dto.setLat(bean.getPunkt().getLat());
+            dto.setLng(bean.getPunkt().getLon());
+        }
+    }
 
     @Mapping(target = "zaehlungen", ignore = true)
     LadeZaehlstelleVisumDTO bean2ladeVisumDto(Zaehlstelle bean);
 
+    @Mapping(target = "punkt", ignore = true)
     Zaehlstelle bearbeiteDto2bean(BearbeiteZaehlstelleDTO dto, @Context StadtbezirkMapper stadtbezirkMapper);
 
     @AfterMapping
     default void toZaehlstelle(@MappingTarget Zaehlstelle bean, BearbeiteZaehlstelleDTO dto, @Context StadtbezirkMapper stadtbezirkMapper) {
         bean.setPunkt(new GeoPoint(dto.getLat(), dto.getLng()));
-
-        if (dto.getPunkt() != null && dto.getPunkt().getLat() > 0 && dto.getPunkt().getLon() > 0) {
-            bean.setPunkt(dto.getPunkt());
-        }
         bean.setStadtbezirk(stadtbezirkMapper.bezeichnungOf(bean.getStadtbezirkNummer()));
 
         // Suchworte setzen

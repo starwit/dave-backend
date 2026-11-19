@@ -50,10 +50,6 @@ public class ZaehlstelleMapperTests {
         assertThat(bean, hasProperty("stadtbezirkNummer", equalTo(dto.getStadtbezirkNummer())));
 
         assertThat(bean, hasProperty("suchwoerter", containsInAnyOrder(expected.toArray(new String[0]))));
-        assertThat(bean, hasProperty("punkt", equalTo(dto.getPunkt())));
-
-        dto.setPunkt(null);
-        bean = this.mapper.bearbeiteDto2bean(dto, stadtbezirkMapper);
         assertThat(bean, hasProperty("punkt", equalTo(new GeoPoint(dto.getLat(), dto.getLng()))));
 
         assertThat(bean, hasProperty("zaehlungen", notNullValue()));
@@ -72,7 +68,8 @@ public class ZaehlstelleMapperTests {
         assertThat(dto, hasProperty("nummer", equalTo(bean.getNummer())));
         assertThat(dto, hasProperty("stadtbezirkNummer", equalTo(bean.getStadtbezirkNummer())));
         assertThat(dto, hasProperty("customSuchwoerter", equalTo(bean.getCustomSuchwoerter())));
-        assertThat(dto, hasProperty("punkt", equalTo(bean.getPunkt())));
+        assertThat(dto.getLat(), is(equalTo(bean.getPunkt().getLat())));
+        assertThat(dto.getLng(), is(equalTo(bean.getPunkt().getLon())));
 
         assertThat(dto, hasProperty("zaehlungen", notNullValue()));
         assertThat(dto.getZaehlungen().size(), equalTo(bean.getZaehlungen().size()));
