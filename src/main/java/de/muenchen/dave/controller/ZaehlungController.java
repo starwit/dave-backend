@@ -66,7 +66,8 @@ public class ZaehlungController {
     }
 
     /**
-     * Zählungen anhand des Anfangs ihrer Projektnummer, z. B. alle eines externen Systems, das seine Zählungen mit
+     * Zählungen anhand des Anfangs ihrer Projektnummer, z. B. alle eines externen Systems, das seine
+     * Zählungen mit
      * eigenen Projektnummern anlegt.
      *
      * @param prefix Anfang der Projektnummer, darf nicht leer sein

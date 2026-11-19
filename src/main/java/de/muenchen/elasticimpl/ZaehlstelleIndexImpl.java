@@ -116,7 +116,8 @@ public class ZaehlstelleIndexImpl implements ZaehlstelleIndex {
     }
 
     /**
-     * Filtert in Java statt in Elasticsearch: projektNummer ist ein analysiertes Textfeld, eine Präfixsuche darauf
+     * Filtert in Java statt in Elasticsearch: projektNummer ist ein analysiertes Textfeld, eine
+     * Präfixsuche darauf
      * vergleicht einzelne Tokens statt der ganzen Nummer.
      */
     public List<Zaehlstelle> findAllByZaehlungenProjektNummerStartsWith(String prefix) {

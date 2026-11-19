@@ -585,8 +585,10 @@ public class ZaehlstelleIndexService {
     }
 
     /**
-     * Ermittelt die Zählungen, deren Projektnummer mit dem Präfix beginnt, unabhängig von Status und Zählstelle. Ein
-     * externes System, das seine Zählungen anhand selbst vergebener Projektnummern verwaltet, findet sie so wieder,
+     * Ermittelt die Zählungen, deren Projektnummer mit dem Präfix beginnt, unabhängig von Status und
+     * Zählstelle. Ein
+     * externes System, das seine Zählungen anhand selbst vergebener Projektnummern verwaltet, findet
+     * sie so wieder,
      * auch wenn sich der Standort seiner Zählstelle geändert hat.
      *
      * @param prefix Anfang der Projektnummer, darf nicht leer sein

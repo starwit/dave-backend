@@ -119,7 +119,8 @@ public interface ZaehlstelleIndex {
 
     /**
      * @param prefix Anfang der Projektnummer
-     * @return alle Zählstellen mit mindestens einer Zählung, deren Projektnummer so beginnt, mit allen ihren Zählungen
+     * @return alle Zählstellen mit mindestens einer Zählung, deren Projektnummer so beginnt, mit allen
+     *         ihren Zählungen
      */
     List<Zaehlstelle> findAllByZaehlungenProjektNummerStartsWith(String prefix);
 
